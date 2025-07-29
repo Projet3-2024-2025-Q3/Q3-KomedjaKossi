@@ -8,6 +8,10 @@ import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller that handles user authentication and registration.
+ * Provides endpoints for login and user creation with JWT token generation.
+ */
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = "*")
@@ -22,6 +26,12 @@ public class AuthController {
     @Autowired
     private com.example.jobappbackend.service.UserService userService;
 
+    /**
+     * Authenticates a user with provided credentials and returns a JWT token if successful.
+     *
+     * @param request AuthRequest containing username and password.
+     * @return AuthResponse containing the JWT token.
+     */
     @PostMapping("/login")
     public AuthResponse login(@RequestBody AuthRequest request) {
         UsernamePasswordAuthenticationToken authInput = new UsernamePasswordAuthenticationToken(
@@ -33,6 +43,12 @@ public class AuthController {
         return new AuthResponse(token);
     }
 
+    /**
+     * Registers a new user account with the provided data.
+     *
+     * @param request RegisterRequest containing username, email, password, and role.
+     * @return User object representing the newly registered user.
+     */
     @PostMapping("/register")
     public User register(@RequestBody RegisterRequest request) {
         return userService.register(request);
