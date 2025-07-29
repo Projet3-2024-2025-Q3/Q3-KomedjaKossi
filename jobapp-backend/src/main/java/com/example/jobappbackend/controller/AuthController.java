@@ -1,6 +1,7 @@
 package com.example.jobappbackend.controller;
 
 import com.example.jobappbackend.dto.*;
+import com.example.jobappbackend.model.User;
 import com.example.jobappbackend.service.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired
@@ -29,5 +31,10 @@ public class AuthController {
         UserDetails userDetails = userService.loadUserByUsername(request.getUsername());
         String token = jwtService.generateToken(userDetails.getUsername());
         return new AuthResponse(token);
+    }
+
+    @PostMapping("/register")
+    public User register(@RequestBody RegisterRequest request) {
+        return userService.register(request);
     }
 }
