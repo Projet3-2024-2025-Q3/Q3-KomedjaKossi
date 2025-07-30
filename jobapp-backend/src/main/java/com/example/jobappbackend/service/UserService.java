@@ -1,6 +1,7 @@
 package com.example.jobappbackend.service;
 
 import com.example.jobappbackend.dto.RegisterRequest;
+import com.example.jobappbackend.dto.UserResponse;
 import com.example.jobappbackend.model.User;
 import com.example.jobappbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class UserService implements UserDetailsService {
      * @return the created {@link User} entity
      * @throws RuntimeException if the username already exists
      */
-    public User register(RegisterRequest request) {
+    public UserResponse register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             throw new RuntimeException("Username already taken");
         }
@@ -69,17 +70,47 @@ public class UserService implements UserDetailsService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(request.getRole());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setAddress(request.getAddress());
+        user.setCompanyName(request.getCompanyName());
+        user.setPhoneNumber(request.getPhoneNumber());
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return new UserResponse(
+                savedUser.getId(),
+                savedUser.getUsername(),
+                savedUser.getEmail(),
+                savedUser.getRole(),
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
+                savedUser.getAddress(),
+                savedUser.getCompanyName(),
+                savedUser.getPhoneNumber()
+        );
     }
+
     /**
      * Retrieves all users from the database.
      *
      * @return a list of all {@link User} entities.
      */
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(user -> new UserResponse(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getEmail(),
+                        user.getRole(),
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getAddress(),
+                        user.getCompanyName(),
+                        user.getPhoneNumber()
+                ))
+                .toList();
     }
+
 
     /**
      * Updates an existing user by ID with the provided information.
@@ -89,16 +120,32 @@ public class UserService implements UserDetailsService {
      * @return the updated {@link User} entity
      * @throws RuntimeException if the user is not found in the database
      */
-    public User updateUser(Long id, RegisterRequest request) {
+    public UserResponse updateUser(Long id, RegisterRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setRole(request.getRole());
-        user.setPassword(passwordEncoder.encode(request.getPassword())); // encode the updated password
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setAddress(request.getAddress());
+        user.setCompanyName(request.getCompanyName());
+        user.setPhoneNumber(request.getPhoneNumber());
 
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        return new UserResponse(
+                savedUser.getId(),
+                savedUser.getUsername(),
+                savedUser.getEmail(),
+                savedUser.getRole(),
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
+                savedUser.getAddress(),
+                savedUser.getCompanyName(),
+                savedUser.getPhoneNumber()
+        );
     }
 
     /**

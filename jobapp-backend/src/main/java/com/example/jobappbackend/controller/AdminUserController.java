@@ -1,6 +1,7 @@
 package com.example.jobappbackend.controller;
 
 import com.example.jobappbackend.dto.RegisterRequest;
+import com.example.jobappbackend.dto.UserResponse;
 import com.example.jobappbackend.model.User;
 import com.example.jobappbackend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class AdminUserController {
      * @return a list of all {@link User} entities
      */
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserResponse> getAllUsers() {
         return userService.getAllUsers();
     }
 
@@ -40,7 +41,7 @@ public class AdminUserController {
      * @return the newly created {@link User}
      */
     @PostMapping
-    public User createUser(@RequestBody RegisterRequest request) {
+    public UserResponse createUser(@RequestBody RegisterRequest request) {
         return userService.register(request);
     }
 
@@ -52,7 +53,7 @@ public class AdminUserController {
      * @return the updated {@link User}
      */
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable Long id, @RequestBody RegisterRequest request) {
+    public UserResponse updateUser(@PathVariable Long id, @RequestBody RegisterRequest request) {
         return userService.updateUser(id, request);
     }
 

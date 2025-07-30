@@ -42,5 +42,31 @@ public class User {
     /**
      * Email address of the user.
      */
+    @Column(nullable = false, unique = true)
     private String email;
+
+    /**
+     * First name of the user (for students or company contact person).
+     */
+    private String firstName;
+
+    /**
+     * Last name of the user (for students or company contact person).
+     */
+    private String lastName;
+
+    /**
+     * Company name (only for users with role COMPANY).
+     */
+    private String companyName;
+
+    /**
+     * Address of the user or the company.
+     */
+    private String address;
+
+    /**
+     * Optional phone number.
+     */
+    private String phoneNumber;
 }

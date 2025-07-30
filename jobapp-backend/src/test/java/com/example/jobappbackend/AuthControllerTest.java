@@ -78,14 +78,24 @@ class AuthControllerTest {
      */
     @Test
     void shouldRegisterUserSuccessfully() throws Exception {
-        RegisterRequest request = new RegisterRequest("testuser", "test@example.com", "password123", "USER");
+        RegisterRequest request = new RegisterRequest(
+                "testuser", "test@example.com", "password123", "USER",
+                "John", "Doe", "123 Main St", "TestCompany", "0123456789"
+        );
 
-        User user = new User();
-        user.setUsername("testuser");
-        user.setEmail("test@example.com");
-        user.setRole("USER");
+        UserResponse responseMock = new UserResponse(
+                1L,
+                "testuser",
+                "test@example.com",
+                "USER",
+                "John",
+                "Doe",
+                "123 Main St",
+                "TestCompany",
+                "0123456789"
+        );
 
-        when(userService.register(any(RegisterRequest.class))).thenReturn(user);
+        when(userService.register(any(RegisterRequest.class))).thenReturn(responseMock);
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,9 +103,12 @@ class AuthControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andReturn();
 
-        String response = result.getResponse().getContentAsString();
-        assertTrue(response.contains("testuser"));
+        String jsonResponse = result.getResponse().getContentAsString();
+        assertTrue(jsonResponse.contains("testuser"));
+        assertTrue(jsonResponse.contains("test@example.com"));
+        assertTrue(jsonResponse.contains("TestCompany"));
     }
+
 
     /**
      * Test case for successful user login.

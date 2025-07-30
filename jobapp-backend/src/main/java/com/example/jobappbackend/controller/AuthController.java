@@ -50,7 +50,7 @@ public class AuthController {
      * @return User object representing the newly registered user.
      */
     @PostMapping("/register")
-    public User register(@RequestBody RegisterRequest request) {
+    public UserResponse register(@RequestBody RegisterRequest request) {
         return userService.register(request);
     }
 }

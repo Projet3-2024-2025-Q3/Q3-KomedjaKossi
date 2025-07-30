@@ -11,6 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterRequest {
+
     /**
      * Username chosen by the user.
      */
@@ -30,4 +31,29 @@ public class RegisterRequest {
      * Role assigned to the user (e.g., STUDENT, COMPANY, ADMIN).
      */
     private String role;
+
+    /**
+     * First name of the user.
+     */
+    private String firstName;
+
+    /**
+     * Last name of the user.
+     */
+    private String lastName;
+
+    /**
+     * Address of the user or company.
+     */
+    private String address;
+
+    /**
+     * Optional company name (if role is COMPANY).
+     */
+    private String companyName;
+
+    /**
+     * Optional phone number.
+     */
+    private String phoneNumber;
 }
