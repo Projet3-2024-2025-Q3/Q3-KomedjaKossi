@@ -32,10 +32,9 @@ public class StudentOfferController {
      * Get all available job offers.
      */
     @GetMapping
-    public List<OfferResponse> getAllOffers() {
-        return offerService.getAllOffers();
+    public List<OfferResponse> getAllOffers(Principal principal) {
+        return offerService.getAllOffers(principal.getName());
     }
-
     /**
      * Get details of a specific job offer.
      */

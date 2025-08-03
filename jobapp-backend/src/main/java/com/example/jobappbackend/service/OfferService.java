@@ -4,6 +4,7 @@ import com.example.jobappbackend.dto.OfferRequest;
 import com.example.jobappbackend.dto.OfferResponse;
 import com.example.jobappbackend.model.Offer;
 import com.example.jobappbackend.model.User;
+import com.example.jobappbackend.repository.ApplicationRepository;
 import com.example.jobappbackend.repository.OfferRepository;
 import com.example.jobappbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,15 @@ public class OfferService {
 
     private final OfferRepository offerRepository;
     private final UserRepository userRepository;
+    private final ApplicationRepository applicationRepository;
 
     @Autowired
-    public OfferService(OfferRepository offerRepository, UserRepository userRepository) {
+    public OfferService(OfferRepository offerRepository,
+                        UserRepository userRepository,
+                        ApplicationRepository applicationRepository) {
         this.offerRepository = offerRepository;
         this.userRepository = userRepository;
+        this.applicationRepository = applicationRepository;
     }
 
     /**
@@ -36,7 +41,6 @@ public class OfferService {
      * @return the created offer as a response DTO
      */
     public OfferResponse createOffer(OfferRequest request, String companyUsername) {
-
         User company = userRepository.findByUsername(companyUsername)
                 .orElseThrow(() -> new RuntimeException("Company not found"));
 
@@ -106,24 +110,6 @@ public class OfferService {
     }
 
     /**
-     * Converts an Offer entity to OfferResponse DTO.
-     *
-     * @param offer the offer entity
-     * @return the corresponding response DTO
-     */
-    private OfferResponse toDto(Offer offer) {
-        return new OfferResponse(
-                offer.getId(),
-                offer.getTitle(),
-                offer.getDescription(),
-                offer.getLogoUrl(),
-                offer.getWebsiteUrl(),
-                offer.getCreatedAt(),
-                offer.getCreatedBy().getCompanyName() // or getUsername() if preferred
-        );
-    }
-
-    /**
      * Retrieves a single job offer by its ID.
      *
      * @param id the offer ID
@@ -136,15 +122,61 @@ public class OfferService {
     }
 
     /**
-     * Retrieves all job offers from the system.
+     * Retrieves all job offers and adds 'applied' info for the connected student.
      *
-     * @return a list of all offers as response DTOs
+     * @param studentUsername the username of the student
+     * @return list of offers with applied status
      */
-    public List<OfferResponse> getAllOffers() {
+    public List<OfferResponse> getAllOffers(String studentUsername) {
+        User student = userRepository.findByUsername(studentUsername)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
+
         return offerRepository.findAll().stream()
-                .map(this::toDto)
+                .map(offer -> {
+                    boolean applied = applicationRepository
+                            .findByStudentAndOffer(student, offer)
+                            .isPresent();
+                    return toDto(offer, applied);
+                })
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Converts an Offer entity to OfferResponse DTO without applied status.
+     *
+     * @param offer the offer entity
+     * @return DTO with default applied = false
+     */
+    private OfferResponse toDto(Offer offer) {
+        return new OfferResponse(
+                offer.getId(),
+                offer.getTitle(),
+                offer.getDescription(),
+                offer.getLogoUrl(),
+                offer.getWebsiteUrl(),
+                offer.getCreatedAt(),
+                offer.getCreatedBy().getCompanyName(),
+                false
+        );
+    }
 
+    /**
+     * Converts an Offer entity to OfferResponse DTO with applied status.
+     *
+     * @param offer   the offer entity
+     * @param applied whether the student has applied
+     * @return the full DTO
+     */
+    private OfferResponse toDto(Offer offer, boolean applied) {
+        return new OfferResponse(
+                offer.getId(),
+                offer.getTitle(),
+                offer.getDescription(),
+                offer.getLogoUrl(),
+                offer.getWebsiteUrl(),
+                offer.getCreatedAt(),
+                offer.getCreatedBy().getCompanyName(),
+                applied
+        );
+    }
 }

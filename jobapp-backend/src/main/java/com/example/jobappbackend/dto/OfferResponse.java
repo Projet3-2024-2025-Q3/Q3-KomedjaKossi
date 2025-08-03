@@ -17,4 +17,5 @@ public class OfferResponse {
     private String websiteUrl;
     private LocalDateTime createdAt;
     private String companyName;
+    private boolean applied;
 }

@@ -2,8 +2,11 @@ package com.example.jobappbackend.controller;
 
 import com.example.jobappbackend.dto.*;
 import com.example.jobappbackend.model.User;
+import com.example.jobappbackend.service.AuthService;
 import com.example.jobappbackend.service.JwtService;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -20,11 +23,18 @@ public class AuthController {
     @Autowired
     private AuthenticationManager authManager;
 
+
+    private final AuthService authService;
+
     @Autowired
     private JwtService jwtService;
 
     @Autowired
     private com.example.jobappbackend.service.UserService userService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     /**
      * Authenticates a user with provided credentials and returns a JWT token if successful.
@@ -53,4 +63,29 @@ public class AuthController {
     public UserResponse register(@RequestBody RegisterRequest request) {
         return userService.register(request);
     }
+
+    /**
+     * Endpoint to allow users to reset their password using their email address.
+     *
+     * @param email The user's email address.
+     * @return A confirmation message indicating the new password has been sent.
+     */
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam String email) throws MessagingException {
+        authService.resetPassword(email);
+        return ResponseEntity.ok("A new password has been sent to your email.");
+    }
+
+    /**
+     * Allows a user to change their password.
+     *
+     * @param request ChangePasswordRequest containing username, old and new password.
+     * @return Confirmation message.
+     */
+    @PutMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
+        authService.changePassword(request);
+        return ResponseEntity.ok("Password changed successfully.");
+    }
+
 }
