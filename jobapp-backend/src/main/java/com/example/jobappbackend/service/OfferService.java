@@ -122,4 +122,29 @@ public class OfferService {
                 offer.getCreatedBy().getCompanyName() // or getUsername() if preferred
         );
     }
+
+    /**
+     * Retrieves a single job offer by its ID.
+     *
+     * @param id the offer ID
+     * @return the corresponding OfferResponse DTO
+     */
+    public OfferResponse getOfferById(Long id) {
+        Offer offer = offerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Offer not found"));
+        return toDto(offer);
+    }
+
+    /**
+     * Retrieves all job offers from the system.
+     *
+     * @return a list of all offers as response DTOs
+     */
+    public List<OfferResponse> getAllOffers() {
+        return offerRepository.findAll().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+
 }

@@ -19,4 +19,5 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
      * @return list of offers
      */
     List<Offer> findByCreatedByUsername(String username);
+
 }
