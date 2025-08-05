@@ -55,7 +55,8 @@ class CompanyOfferControllerTest {
                 "https://example.com/logo.png",
                 "https://company.com",
                 LocalDateTime.now(),
-                "ACME Corp"
+                "ACME Corp",
+                false
         );
     }
 

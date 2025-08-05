@@ -2,6 +2,7 @@ package com.example.jobappbackend.service;
 
 import com.example.jobappbackend.dto.RegisterRequest;
 import com.example.jobappbackend.dto.UserResponse;
+import com.example.jobappbackend.exception.ApiException;
 import com.example.jobappbackend.model.User;
 import com.example.jobappbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,11 +59,11 @@ public class UserService implements UserDetailsService {
      *
      * @param request the registration request containing user credentials
      * @return the created {@link User} entity
-     * @throws RuntimeException if the username already exists
+     * @throws ApiException if the username already exists
      */
     public UserResponse register(RegisterRequest request) {
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
-            throw new RuntimeException("Username already taken");
+            throw new ApiException("Username already taken");
         }
 
         User user = new User();
@@ -111,18 +112,17 @@ public class UserService implements UserDetailsService {
                 .toList();
     }
 
-
     /**
      * Updates an existing user by ID with the provided information.
      *
      * @param id      the ID of the user to update
      * @param request the updated user data (username, email, role, password)
      * @return the updated {@link User} entity
-     * @throws RuntimeException if the user is not found in the database
+     * @throws ApiException if the user is not found in the database
      */
     public UserResponse updateUser(Long id, RegisterRequest request) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ApiException("User not found"));
 
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
@@ -151,11 +151,11 @@ public class UserService implements UserDetailsService {
      * Deletes a user from the database by their ID.
      *
      * @param id the ID of the user to delete
-     * @throws RuntimeException if the user does not exist
+     * @throws ApiException if the user does not exist
      */
     public void deleteUser(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User not found");
+            throw new ApiException("User not found");
         }
         userRepository.deleteById(id);
     }

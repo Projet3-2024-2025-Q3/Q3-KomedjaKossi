@@ -21,16 +21,16 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     @Autowired
-    private AuthenticationManager authManager;
+    public AuthenticationManager authManager;
 
 
     private final AuthService authService;
 
     @Autowired
-    private JwtService jwtService;
+    public JwtService jwtService;
 
     @Autowired
-    private com.example.jobappbackend.service.UserService userService;
+    public com.example.jobappbackend.service.UserService userService;
 
     public AuthController(AuthService authService) {
         this.authService = authService;

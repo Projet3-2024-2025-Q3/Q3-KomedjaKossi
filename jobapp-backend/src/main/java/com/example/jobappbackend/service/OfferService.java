@@ -2,6 +2,7 @@ package com.example.jobappbackend.service;
 
 import com.example.jobappbackend.dto.OfferRequest;
 import com.example.jobappbackend.dto.OfferResponse;
+import com.example.jobappbackend.exception.ApiException;
 import com.example.jobappbackend.model.Offer;
 import com.example.jobappbackend.model.User;
 import com.example.jobappbackend.repository.ApplicationRepository;
@@ -42,7 +43,7 @@ public class OfferService {
      */
     public OfferResponse createOffer(OfferRequest request, String companyUsername) {
         User company = userRepository.findByUsername(companyUsername)
-                .orElseThrow(() -> new RuntimeException("Company not found"));
+                .orElseThrow(() -> new ApiException("Company not found"));
 
         Offer offer = new Offer();
         offer.setTitle(request.getTitle());
@@ -77,10 +78,10 @@ public class OfferService {
      */
     public OfferResponse updateOffer(Long id, OfferRequest request, String companyUsername) {
         Offer offer = offerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Offer not found"));
+                .orElseThrow(() -> new ApiException("Offer not found"));
 
         if (!offer.getCreatedBy().getUsername().equals(companyUsername)) {
-            throw new RuntimeException("You are not authorized to update this offer.");
+            throw new ApiException("You are not authorized to update this offer.");
         }
 
         offer.setTitle(request.getTitle());
@@ -100,10 +101,10 @@ public class OfferService {
      */
     public void deleteOffer(Long id, String companyUsername) {
         Offer offer = offerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Offer not found"));
+                .orElseThrow(() -> new ApiException("Offer not found"));
 
         if (!offer.getCreatedBy().getUsername().equals(companyUsername)) {
-            throw new RuntimeException("You are not authorized to delete this offer.");
+            throw new ApiException("You are not authorized to delete this offer.");
         }
 
         offerRepository.deleteById(id);
@@ -117,7 +118,7 @@ public class OfferService {
      */
     public OfferResponse getOfferById(Long id) {
         Offer offer = offerRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Offer not found"));
+                .orElseThrow(() -> new ApiException("Offer not found"));
         return toDto(offer);
     }
 
@@ -129,7 +130,7 @@ public class OfferService {
      */
     public List<OfferResponse> getAllOffers(String studentUsername) {
         User student = userRepository.findByUsername(studentUsername)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ApiException("Student not found"));
 
         return offerRepository.findAll().stream()
                 .map(offer -> {

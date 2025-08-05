@@ -1,5 +1,6 @@
 package com.example.jobappbackend.service;
 
+import com.example.jobappbackend.exception.ApiException;
 import com.example.jobappbackend.model.Application;
 import com.example.jobappbackend.model.Offer;
 import com.example.jobappbackend.model.User;
@@ -43,22 +44,21 @@ public class StudentApplicationService {
      * Sends an application email with attachments (CV + motivation letter) to the company,
      * and saves the application in the database.
      *
-     * @param offerId       the ID of the offer
-     * @param cv            the CV file
-     * @param motivation    the motivation letter file
+     * @param offerId         the ID of the offer
+     * @param cv              the CV file
+     * @param motivation      the motivation letter file
      * @param studentUsername the username of the student (from Principal)
      */
     public void applyToOffer(Long offerId, MultipartFile cv, MultipartFile motivation, String studentUsername) throws MessagingException {
         Offer offer = offerRepository.findById(offerId)
-                .orElseThrow(() -> new RuntimeException("Offer not found"));
+                .orElseThrow(() -> new ApiException("Offer not found"));
 
         User student = userRepository.findByUsername(studentUsername)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ApiException("Student not found"));
 
-        // Save application if not already exists
         boolean alreadyApplied = applicationRepository.findByStudentAndOffer(student, offer).isPresent();
         if (alreadyApplied) {
-            throw new IllegalStateException("You have already applied to this offer.");
+            throw new ApiException("You have already applied to this offer.");
         }
 
         Application application = new Application();
@@ -67,10 +67,9 @@ public class StudentApplicationService {
         application.setAppliedAt(LocalDateTime.now());
         applicationRepository.save(application);
 
-        // Send email to the company
         User company = offer.getCreatedBy();
         if (company == null || company.getEmail() == null) {
-            throw new RuntimeException("Company email not available.");
+            throw new ApiException("Company email not available.");
         }
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -89,6 +88,13 @@ public class StudentApplicationService {
         mailSender.send(message);
     }
 
+    /**
+     * Adds a file as an attachment to the email.
+     *
+     * @param helper the email message helper
+     * @param file   the file to attach
+     * @throws MessagingException if adding the attachment fails
+     */
     private void addAttachment(MimeMessageHelper helper, MultipartFile file) throws MessagingException {
         String filename = file.getOriginalFilename();
         InputStreamSource source = file::getInputStream;

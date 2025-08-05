@@ -1,6 +1,7 @@
 package com.example.jobappbackend.service;
 
 import com.example.jobappbackend.dto.ApplicationResponse;
+import com.example.jobappbackend.exception.ApiException;
 import com.example.jobappbackend.model.Application;
 import com.example.jobappbackend.model.Offer;
 import com.example.jobappbackend.model.User;
@@ -32,13 +33,13 @@ public class ApplicationService {
      */
     public void apply(Long studentId, Long offerId) {
         User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+                .orElseThrow(() -> new ApiException("Student not found"));
 
         Offer offer = offerRepository.findById(offerId)
-                .orElseThrow(() -> new IllegalArgumentException("Offer not found"));
+                .orElseThrow(() -> new ApiException("Offer not found"));
 
         applicationRepository.findByStudentAndOffer(student, offer).ifPresent(existing -> {
-            throw new IllegalStateException("Student already applied to this offer.");
+            throw new ApiException("Student already applied to this offer.");
         });
 
         Application application = new Application();
@@ -55,7 +56,7 @@ public class ApplicationService {
      */
     public List<ApplicationResponse> getApplicationsByStudent(Long studentId) {
         User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
+                .orElseThrow(() -> new ApiException("Student not found"));
 
         return applicationRepository.findByStudent(student).stream()
                 .map(app -> new ApplicationResponse(
@@ -66,5 +67,4 @@ public class ApplicationService {
                 ))
                 .collect(Collectors.toList());
     }
-
 }

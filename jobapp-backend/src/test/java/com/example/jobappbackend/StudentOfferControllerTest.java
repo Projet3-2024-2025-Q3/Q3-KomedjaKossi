@@ -21,6 +21,9 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Test class for StudentOfferController.
+ */
 @SpringBootTest
 class StudentOfferControllerTest {
 
@@ -34,32 +37,51 @@ class StudentOfferControllerTest {
     private StudentOfferController studentOfferController;
 
     private MockMvc mockMvc;
-
+    private Principal mockPrincipal;
     private OfferResponse sampleOffer;
 
+    /**
+     * Setup test environment before each test.
+     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(studentOfferController).build();
 
+        mockPrincipal = () -> "student1";
+
         sampleOffer = new OfferResponse(
-                1L, "Internship", "Great opportunity",
-                "http://logo.com/logo.png", "http://company.com",
-                LocalDateTime.now(), "Acme Inc."
+                1L,
+                "Internship",
+                "Great opportunity",
+                "http://logo.com/logo.png",
+                "http://company.com",
+                LocalDateTime.now(),
+                "Acme Inc.",
+                true
         );
     }
 
+    /**
+     * Test to retrieve all job offers with applied status.
+     */
     @Test
     void shouldGetAllOffers() throws Exception {
-        when(offerService.getAllOffers()).thenReturn(List.of(sampleOffer));
+        when(offerService.getAllOffers("student1")).thenReturn(List.of(sampleOffer));
 
-        mockMvc.perform(get("/offers"))
+        mockMvc.perform(get("/offers")
+                        .principal(mockPrincipal)
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("Internship"));
+                .andExpect(jsonPath("$[0].title").value("Internship"))
+                .andExpect(jsonPath("$[0].applied").value(true));
 
-        verify(offerService).getAllOffers();
+        verify(offerService).getAllOffers("student1");
     }
 
+    /**
+     * Test to retrieve a specific offer by ID.
+     */
     @Test
     void shouldGetOfferById() throws Exception {
         when(offerService.getOfferById(1L)).thenReturn(sampleOffer);
@@ -71,19 +93,22 @@ class StudentOfferControllerTest {
         verify(offerService).getOfferById(1L);
     }
 
+    /**
+     * Test to apply to an offer with CV and motivation letter.
+     */
     @Test
     void shouldApplyToOffer() throws Exception {
-        MockMultipartFile cv = new MockMultipartFile("cv", "cv.pdf", "application/pdf", "Dummy CV content".getBytes());
-        MockMultipartFile motivation = new MockMultipartFile("motivation", "motivation.pdf", "application/pdf", "Dummy Motivation content".getBytes());
+        MockMultipartFile cv = new MockMultipartFile("cv", "cv.pdf", "application/pdf", "Dummy CV".getBytes());
+        MockMultipartFile motivation = new MockMultipartFile("motivation", "motivation.pdf", "application/pdf", "Dummy Motivation".getBytes());
 
-        Principal principal = () -> "student123";
+        mockPrincipal = () -> "student123";
 
         doNothing().when(applicationService).applyToOffer(eq(1L), any(), any(), eq("student123"));
 
         mockMvc.perform(multipart("/offers/1/apply")
                         .file(cv)
                         .file(motivation)
-                        .principal(principal)
+                        .principal(mockPrincipal)
                         .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andExpect(status().isOk());
 

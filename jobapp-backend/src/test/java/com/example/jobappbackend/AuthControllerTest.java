@@ -1,83 +1,92 @@
 package com.example.jobappbackend;
 
+import com.example.jobappbackend.controller.AuthController;
 import com.example.jobappbackend.dto.*;
 import com.example.jobappbackend.model.User;
-import com.example.jobappbackend.controller.AuthController;
 import com.example.jobappbackend.service.JwtService;
 import com.example.jobappbackend.service.UserService;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.*;
-import org.springframework.security.authentication.*;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.test.web.servlet.*;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
- * Unit tests for the {@link AuthController}.
- * Verifies the registration and login endpoints using MockMvc and Mockito.
+ * Tests unitaires pour le contrôleur d'authentification {@link AuthController}.
  */
 @SpringBootTest
-class AuthControllerTest {
+public class AuthControllerTest {
 
     /**
-     * Mocked authentication manager used for simulating login authentication.
+     * MockMvc pour simuler les requêtes HTTP.
+     */
+    private MockMvc mockMvc;
+
+    /**
+     * Mapper Jackson pour sérialiser/désérialiser les objets JSON.
+     */
+    private ObjectMapper objectMapper;
+
+    /**
+     * Mock du gestionnaire d'authentification.
      */
     @Mock
-    private AuthenticationManager authManager;
+    public AuthenticationManager authManager;
 
     /**
-     * Mocked service for handling JWT operations.
-     */
-    @Mock
-    private JwtService jwtService;
-
-    /**
-     * Mocked service for user operations (registration and loading).
+     * Mock du service utilisateur.
      */
     @Mock
     private UserService userService;
 
     /**
-     * Controller under test, with mocks injected.
+     * Mock du service JWT.
+     */
+    @Mock
+    private JwtService jwtService;
+
+    /**
+     * Contrôleur d'authentification testé.
      */
     @InjectMocks
     private AuthController authController;
 
     /**
-     * MockMvc used to simulate HTTP requests to the controller.
-     */
-    private MockMvc mockMvc;
-
-    /**
-     * Jackson object mapper for serializing/deserializing JSON.
-     */
-    private ObjectMapper objectMapper;
-
-    /**
-     * Setup method to initialize MockMvc and ObjectMapper before each test.
+     * Initialise les mocks et le contrôleur avant chaque test.
      */
     @BeforeEach
-    void setUp() {
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+
+        // On injecte les mocks manuellement dans le contrôleur
+        authController = new AuthController(null);
+        authController.authManager = authManager;
+        authController.userService = userService;
+        authController.jwtService = jwtService;
+
         mockMvc = MockMvcBuilders.standaloneSetup(authController).build();
         objectMapper = new ObjectMapper();
     }
 
     /**
-     * Test case for successful user registration.
-     *
-     * @throws Exception if the request fails
+     * Test pour vérifier que l'enregistrement d'un utilisateur fonctionne correctement.
      */
     @Test
-    void shouldRegisterUserSuccessfully() throws Exception {
+    public void shouldRegisterUserSuccessfully() throws Exception {
         RegisterRequest request = new RegisterRequest(
                 "testuser", "test@example.com", "password123", "USER",
                 "John", "Doe", "123 Main St", "TestCompany", "0123456789"
@@ -97,10 +106,10 @@ class AuthControllerTest {
 
         when(userService.register(any(RegisterRequest.class))).thenReturn(responseMock);
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/auth/register")
+        MvcResult result = mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
 
         String jsonResponse = result.getResponse().getContentAsString();
@@ -109,14 +118,11 @@ class AuthControllerTest {
         assertTrue(jsonResponse.contains("TestCompany"));
     }
 
-
     /**
-     * Test case for successful user login.
-     *
-     * @throws Exception if the request fails
+     * Test pour vérifier que la connexion renvoie un token JWT si les identifiants sont valides.
      */
     @Test
-    void shouldLoginUserSuccessfully() throws Exception {
+    public void shouldLoginUserSuccessfully() throws Exception {
         AuthRequest request = new AuthRequest("testuser", "password123");
 
         UserDetails userDetails = org.springframework.security.core.userdetails.User
@@ -128,13 +134,13 @@ class AuthControllerTest {
         when(userService.loadUserByUsername("testuser")).thenReturn(userDetails);
         when(jwtService.generateToken("testuser")).thenReturn("fake-jwt-token");
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/auth/login")
+        MvcResult result = mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andReturn();
 
-        String response = result.getResponse().getContentAsString();
-        assertTrue(response.contains("fake-jwt-token"));
+        String jsonResponse = result.getResponse().getContentAsString();
+        assertTrue(jsonResponse.contains("fake-jwt-token"));
     }
 }
