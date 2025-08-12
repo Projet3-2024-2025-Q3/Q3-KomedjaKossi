@@ -7,17 +7,27 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * Repository for CRUD operations on {@link Offer}.
+ * Repository interface for managing {@link Offer} entities.
+ * <p>
+ * Provides CRUD operations and query methods for retrieving
+ * offers based on the company that created them.
  */
 @Repository
 public interface OfferRepository extends JpaRepository<Offer, Long> {
 
     /**
-     * Returns all offers created by a company identified by its username.
+     * Finds all offers created by a company using the company's username.
      *
-     * @param username the username of the company user
-     * @return list of offers
+     * @param username the username of the company user.
+     * @return a list of matching offers.
      */
     List<Offer> findByCreatedByUsername(String username);
 
+    /**
+     * Finds all offers created by a company using the company's user ID.
+     *
+     * @param userId the ID of the company user.
+     * @return a list of matching offers.
+     */
+    List<Offer> findByCreatedBy_Id(Long userId);
 }
