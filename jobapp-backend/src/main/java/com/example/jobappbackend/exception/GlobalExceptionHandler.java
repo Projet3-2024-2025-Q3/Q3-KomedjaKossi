@@ -3,11 +3,14 @@ package com.example.jobappbackend.exception;
 import jakarta.mail.MessagingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
+
+import org.springframework.security.core.AuthenticationException;
 
 /**
  * Global exception handler for REST controllers.
@@ -91,6 +94,33 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(ex.getMessage()));
+    }
+
+    /**
+     * Handles authentication failures (e.g., bad credentials during login).
+     *
+     * @param ex the {@link AuthenticationException} thrown by Spring Security
+     * @return HTTP 401 (Unauthorized) with a generic error message
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthentication(final AuthenticationException ex) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse("Authentication failed: " + ex.getMessage()));
+    }
+
+
+    /**
+     * Handles unsupported HTTP methods (e.g., POST used where only PUT is allowed).
+     *
+     * @param ex the {@link HttpRequestMethodNotSupportedException} thrown by Spring MVC
+     * @return HTTP 405 (Method Not Allowed) with a short explanatory message
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotSupported(final HttpRequestMethodNotSupportedException ex) {
+        return ResponseEntity
+                .status(HttpStatus.METHOD_NOT_ALLOWED)
+                .body(new ErrorResponse("Method not allowed."));
     }
 
     /**
