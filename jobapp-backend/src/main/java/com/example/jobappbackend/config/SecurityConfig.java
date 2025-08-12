@@ -4,6 +4,7 @@ import com.example.jobappbackend.service.JwtService;
 import com.example.jobappbackend.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -12,10 +13,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 /**
  * Configuration class for Spring Security.
- * Sets up JWT authentication, security filters, and user authentication provider.
+ * Sets up JWT authentication, CORS, security filters, and user authentication provider.
  */
 @Configuration
 public class SecurityConfig {
@@ -49,7 +55,8 @@ public class SecurityConfig {
 
     /**
      * Configures the main security filter chain.
-     * Disables CSRF, allows public access to /auth/**, and requires authentication for other endpoints.
+     * Enables CORS, disables CSRF, allows public access to /auth/**,
+     * permits preflight OPTIONS requests, and secures other endpoints by role.
      * Sets the session policy to stateless and adds the JWT filter.
      *
      * @param http HttpSecurity configuration object.
@@ -59,12 +66,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/company/**").hasRole("COMPANY")
-                        .requestMatchers("/student/**").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/company/**").hasAuthority("COMPANY")
+                        .requestMatchers("/student/**").hasAuthority("STUDENT")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -97,5 +106,24 @@ public class SecurityConfig {
         dao.setUserDetailsService(userService);
         dao.setPasswordEncoder(passwordEncoder);
         return dao;
+    }
+
+    /**
+     * Configures CORS to allow requests from the Angular frontend (localhost:4200).
+     * Adjust allowed origins for production.
+     *
+     * @return CorsConfigurationSource instance.
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration c = new CorsConfiguration();
+        c.setAllowCredentials(true);
+        c.setAllowedOrigins(List.of("http://localhost:4200"));
+        c.addAllowedHeader("*");
+        c.addAllowedMethod("*");
+        c.setExposedHeaders(List.of("Authorization", "Location"));
+        UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
+        src.registerCorsConfiguration("/**", c);
+        return src;
     }
 }
