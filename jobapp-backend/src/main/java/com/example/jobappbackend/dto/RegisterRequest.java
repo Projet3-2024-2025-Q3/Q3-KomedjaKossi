@@ -1,10 +1,12 @@
 package com.example.jobappbackend.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
- * Data Transfer Object for user registration.
- * Contains the required fields to create a new user account.
+ * DTO used to register a new user account.
  */
 @Getter
 @Setter
@@ -12,48 +14,25 @@ import lombok.*;
 @NoArgsConstructor
 public class RegisterRequest {
 
-    /**
-     * Username chosen by the user.
-     */
+    /** Chosen username. */
     private String username;
 
-    /**
-     * Email address of the user.
-     */
+    /** Email address. */
     private String email;
 
-    /**
-     * Password chosen by the user.
-     */
+    /** Plain password to be encoded. */
     private String password;
 
-    /**
-     * Role assigned to the user (e.g., STUDENT, COMPANY, ADMIN).
-     */
+    /** Assigned role (e.g., STUDENT, COMPANY, ADMIN). */
     private String role;
 
-    /**
-     * First name of the user.
-     */
     private String firstName;
 
-    /**
-     * Last name of the user.
-     */
     private String lastName;
 
-    /**
-     * Address of the user or company.
-     */
     private String address;
 
-    /**
-     * Optional company name (if role is COMPANY).
-     */
     private String companyName;
 
-    /**
-     * Optional phone number.
-     */
     private String phoneNumber;
 }

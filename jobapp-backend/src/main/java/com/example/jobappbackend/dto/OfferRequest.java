@@ -1,15 +1,26 @@
 package com.example.jobappbackend.dto;
-import lombok.*;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * Dto for creating or updating an offer.
+ * DTO for creating or updating a job offer.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class OfferRequest {
+
+    /** Offer title. */
     private String title;
+
+    /** Offer description. */
     private String description;
+
+    /** Company logo URL (optional). */
     private String logoUrl;
+
+    /** Company website URL (optional). */
     private String websiteUrl;
 }

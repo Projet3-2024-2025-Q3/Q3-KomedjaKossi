@@ -1,10 +1,10 @@
 package com.example.jobappbackend.controller;
 
 import com.example.jobappbackend.dto.*;
-import com.example.jobappbackend.model.User;
 import com.example.jobappbackend.service.AuthService;
 import com.example.jobappbackend.service.JwtService;
 import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -23,14 +23,13 @@ public class AuthController {
     @Autowired
     public AuthenticationManager authManager;
 
-
-    private final AuthService authService;
-
     @Autowired
     public JwtService jwtService;
 
     @Autowired
     public com.example.jobappbackend.service.UserService userService;
+
+    private final AuthService authService;
 
     public AuthController(AuthService authService) {
         this.authService = authService;
@@ -44,8 +43,8 @@ public class AuthController {
      */
     @PostMapping("/login")
     public AuthResponse login(@RequestBody AuthRequest request) {
-        UsernamePasswordAuthenticationToken authInput = new UsernamePasswordAuthenticationToken(
-                request.getUsername(), request.getPassword());
+        UsernamePasswordAuthenticationToken authInput =
+                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
         authManager.authenticate(authInput);
 
         UserDetails userDetails = userService.loadUserByUsername(request.getUsername());
@@ -56,11 +55,11 @@ public class AuthController {
     /**
      * Registers a new user account with the provided data.
      *
-     * @param request RegisterRequest containing username, email, password, and role.
-     * @return User object representing the newly registered user.
+     * @param request RegisterRequest containing username, email, password, role, and profile fields.
+     * @return the newly created user as a UserResponse.
      */
     @PostMapping("/register")
-    public UserResponse register(@RequestBody RegisterRequest request) {
+    public UserResponse register(@Valid @RequestBody RegisterRequest request) {
         return userService.register(request);
     }
 
@@ -87,5 +86,4 @@ public class AuthController {
         authService.changePassword(request);
         return ResponseEntity.ok("Password changed successfully.");
     }
-
 }

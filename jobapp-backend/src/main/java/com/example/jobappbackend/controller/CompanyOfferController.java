@@ -3,9 +3,7 @@ package com.example.jobappbackend.controller;
 import com.example.jobappbackend.dto.OfferRequest;
 import com.example.jobappbackend.dto.OfferResponse;
 import com.example.jobappbackend.service.OfferService;
-
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -14,18 +12,15 @@ import java.util.List;
 /**
  * REST controller allowing a company user to manage its own job offers.
  * <p>
- * Endpoints are restricted to users having the {@code COMPANY} role.
+ * Endpoints are exposed under /company/offers and secured by SecurityConfig.
  */
 @RestController
 @RequestMapping("/company/offers")
 @CrossOrigin(origins = "*")
-@PreAuthorize("hasRole('COMPANY')")
 @RequiredArgsConstructor
 public class CompanyOfferController {
 
-    /**
-     * Business service handling job offer operations.
-     */
+    /** Business service handling job offer operations. */
     private final OfferService offerService;
 
     /**

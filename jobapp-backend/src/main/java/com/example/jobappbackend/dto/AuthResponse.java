@@ -1,26 +1,19 @@
 package com.example.jobappbackend.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
- * Data Transfer Object for JWT authentication response.
- * Contains the generated token after successful login.
+ * DTO returned after successful authentication containing a JWT token.
  */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthResponse {
-    /**
-     * JWT token issued after successful authentication.
-     */
+
+    /** JWT token issued by the backend. */
     private String token;
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
 }

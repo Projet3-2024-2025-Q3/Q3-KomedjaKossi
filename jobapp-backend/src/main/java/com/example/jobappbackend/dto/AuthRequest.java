@@ -1,23 +1,22 @@
 package com.example.jobappbackend.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
- * Data Transfer Object for login credentials.
- * Contains the username and password provided by the user.
+ * DTO carrying login credentials.
  */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthRequest {
-    /**
-     * Username provided by the user.
-     */
+
+    /** Username provided by the user. */
     private String username;
 
-    /**
-     * Password provided by the user.
-     */
+    /** Password provided by the user. */
     private String password;
 }
