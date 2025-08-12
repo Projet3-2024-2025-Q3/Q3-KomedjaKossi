@@ -3,8 +3,8 @@ package com.example.jobappbackend.controller;
 import com.example.jobappbackend.dto.OfferRequest;
 import com.example.jobappbackend.dto.OfferResponse;
 import com.example.jobappbackend.service.OfferService;
-import com.example.jobappbackend.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,39 +12,68 @@ import java.security.Principal;
 import java.util.List;
 
 /**
- * Controller for companies to manage their own job offers.
+ * REST controller allowing a company user to manage its own job offers.
+ * <p>
+ * Endpoints are restricted to users having the {@code COMPANY} role.
  */
 @RestController
 @RequestMapping("/company/offers")
-@PreAuthorize("hasRole('COMPANY')")
 @CrossOrigin(origins = "*")
+@PreAuthorize("hasRole('COMPANY')")
+@RequiredArgsConstructor
 public class CompanyOfferController {
 
-    @Autowired
-    private OfferService offerService;
+    /**
+     * Business service handling job offer operations.
+     */
+    private final OfferService offerService;
 
-    @Autowired
-    private UserService userService;
-
+    /**
+     * Creates a new job offer for the authenticated company.
+     *
+     * @param request   the {@link OfferRequest} payload containing offer details
+     * @param principal the authenticated principal (company account)
+     * @return the created {@link OfferResponse}
+     */
     @PostMapping
-    public OfferResponse createOffer(@RequestBody OfferRequest request, Principal principal) {
+    public OfferResponse createOffer(@RequestBody final OfferRequest request, final Principal principal) {
         return offerService.createOffer(request, principal.getName());
     }
 
+    /**
+     * Retrieves all job offers created by the authenticated company.
+     *
+     * @param principal the authenticated principal (company account)
+     * @return a list of {@link OfferResponse} belonging to the company
+     */
     @GetMapping
-    public List<OfferResponse> getCompanyOffers(Principal principal) {
+    public List<OfferResponse> getCompanyOffers(final Principal principal) {
         return offerService.getOffersByCompany(principal.getName());
     }
 
+    /**
+     * Updates an existing job offer owned by the authenticated company.
+     *
+     * @param id        the identifier of the offer to update
+     * @param request   the {@link OfferRequest} payload with updated data
+     * @param principal the authenticated principal (company account)
+     * @return the updated {@link OfferResponse}
+     */
     @PutMapping("/{id}")
-    public OfferResponse updateOffer(@PathVariable Long id,
-                                     @RequestBody OfferRequest request,
-                                     Principal principal) {
+    public OfferResponse updateOffer(@PathVariable final Long id,
+                                     @RequestBody final OfferRequest request,
+                                     final Principal principal) {
         return offerService.updateOffer(id, request, principal.getName());
     }
 
+    /**
+     * Deletes a job offer owned by the authenticated company.
+     *
+     * @param id        the identifier of the offer to delete
+     * @param principal the authenticated principal (company account)
+     */
     @DeleteMapping("/{id}")
-    public void deleteOffer(@PathVariable Long id, Principal principal) {
+    public void deleteOffer(@PathVariable final Long id, final Principal principal) {
         offerService.deleteOffer(id, principal.getName());
     }
 }
