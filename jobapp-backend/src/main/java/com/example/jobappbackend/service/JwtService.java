@@ -2,81 +2,107 @@ package com.example.jobappbackend.service;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
 /**
- * Service for managing JWT (JSON Web Tokens) used for authentication.
- * Handles token generation, validation, and extraction of user information.
+ * Service for managing JWT (JSON Web Tokens).
+ * Reads secret and expiration from application properties.
  */
 @Service
 public class JwtService {
 
-    /**
-     * Secret key used to sign the JWT tokens.
-     */
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    /** Signing key loaded from configuration. */
+    private final Key key;
+
+    /** Token expiration in milliseconds. */
+    private final long expirationMs;
 
     /**
-     * Token expiration time in milliseconds (24 hours).
-     */
-    private final long EXPIRATION_TIME = 86400000;
-
-    /**
-     * Generates a JWT token for the given username.
+     * Constructs the service with secret and expiration from properties.
      *
-     * @param username the username to include in the token's subject
-     * @return a signed JWT token
+     * @param secret       JWT secret (at least 32 chars).
+     * @param expirationMs token validity in milliseconds.
+     */
+    public JwtService(
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.expiration:86400000}") long expirationMs
+    ) {
+        if (secret == null || secret.length() < 32) {
+            throw new IllegalStateException("jwt.secret must be at least 32 characters long");
+        }
+        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.expirationMs = expirationMs;
+    }
+
+    /**
+     * Generates a signed JWT for the given username.
+     *
+     * @param username subject of the token.
+     * @return signed JWT string.
      */
     public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(key)
                 .compact();
     }
 
     /**
-     * Extracts the username from a JWT token.
+     * Extracts username from token; returns null if invalid/expired.
      *
-     * @param token the JWT token
-     * @return the username stored in the token's subject
+     * @param token JWT string.
+     * @return username or null.
      */
     public String extractUsername(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+        } catch (JwtException | IllegalArgumentException e) {
+            return null;
+        }
     }
 
     /**
-     * Validates a JWT token against a username and its expiration.
+     * Validates token by subject and expiration.
      *
-     * @param token    the JWT token
-     * @param username the expected username
-     * @return true if the token is valid and not expired, false otherwise
+     * @param token    JWT string.
+     * @param username expected subject.
+     * @return true if valid, false otherwise.
      */
     public boolean isTokenValid(String token, String username) {
-        return username.equals(extractUsername(token)) && !isTokenExpired(token);
+        if (username == null) return false;
+        String subject = extractUsername(token);
+        return username.equals(subject) && !isTokenExpired(token);
     }
 
     /**
-     * Checks if the token has expired.
+     * Checks whether the token is expired; returns true if parsing fails.
      *
-     * @param token the JWT token
-     * @return true if the token is expired, false otherwise
+     * @param token JWT string.
+     * @return true if expired/invalid.
      */
     private boolean isTokenExpired(String token) {
-        Date expiration = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration();
-        return expiration.before(new Date());
+        try {
+            Date exp = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration();
+            return exp.before(new Date());
+        } catch (JwtException | IllegalArgumentException e) {
+            return true;
+        }
     }
 }
