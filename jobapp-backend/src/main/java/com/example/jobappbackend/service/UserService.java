@@ -7,6 +7,7 @@ import com.example.jobappbackend.model.User;
 import com.example.jobappbackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.*;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -47,10 +48,11 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("The user does not exist"));
 
+        // Use authorities (not roles) to match SecurityConfig.hasAuthority("ADMIN"/"COMPANY"/"STUDENT")
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
                 .password(user.getPassword())
-                .roles(user.getRole())
+                .authorities(new SimpleGrantedAuthority(user.getRole()))
                 .build();
     }
 
@@ -58,12 +60,15 @@ public class UserService implements UserDetailsService {
      * Registers a new user using the provided registration request.
      *
      * @param request the registration request containing user credentials
-     * @return the created {@link User} entity
-     * @throws ApiException if the username already exists
+     * @return the created user as a {@link UserResponse}
+     * @throws ApiException if the username or email already exists
      */
     public UserResponse register(RegisterRequest request) {
-        if (userRepository.findByUsername(request.getUsername()).isPresent()) {
+        if (userRepository.existsByUsername(request.getUsername())) {
             throw new ApiException("Username already taken");
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new ApiException("Email already in use");
         }
 
         User user = new User();
@@ -94,7 +99,7 @@ public class UserService implements UserDetailsService {
     /**
      * Retrieves all users from the database.
      *
-     * @return a list of all {@link User} entities.
+     * @return a list of {@link UserResponse}.
      */
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
@@ -113,16 +118,26 @@ public class UserService implements UserDetailsService {
     }
 
     /**
-     * Updates an existing user by ID with the provided information.
+     * Updates an existing user by ID with the provided information (no password change here).
      *
      * @param id      the ID of the user to update
-     * @param request the updated user data (username, email, role, password)
-     * @return the updated {@link User} entity
-     * @throws ApiException if the user is not found in the database
+     * @param request the updated user data (username, email, role, profile fields)
+     * @return the updated user as a {@link UserResponse}
+     * @throws ApiException if the user is not found or uniqueness is violated
      */
     public UserResponse updateUser(Long id, RegisterRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ApiException("User not found"));
+
+        // Uniqueness checks only if value changed
+        if (!user.getUsername().equals(request.getUsername())
+                && userRepository.existsByUsername(request.getUsername())) {
+            throw new ApiException("Username already taken");
+        }
+        if (!user.getEmail().equals(request.getEmail())
+                && userRepository.existsByEmail(request.getEmail())) {
+            throw new ApiException("Email already in use");
+        }
 
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
@@ -159,5 +174,4 @@ public class UserService implements UserDetailsService {
         }
         userRepository.deleteById(id);
     }
-
 }

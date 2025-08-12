@@ -1,5 +1,6 @@
 package com.example.jobappbackend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,6 +31,8 @@ public class User {
     /**
      * Hashed password used for authentication.
      */
+    @JsonIgnore
+    @ToString.Exclude
     @Column(nullable = false)
     private String password;
 
