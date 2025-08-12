@@ -14,6 +14,7 @@ import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
@@ -45,22 +46,29 @@ public class StudentApplicationService {
      * and saves the application in the database.
      *
      * @param offerId         the ID of the offer
-     * @param cv              the CV file
-     * @param motivation      the motivation letter file
+     * @param cv              the CV file (required)
+     * @param motivation      the motivation letter file (required)
      * @param studentUsername the username of the student (from Principal)
+     * @throws MessagingException if email sending fails
      */
+    @Transactional(rollbackFor = MessagingException.class)
     public void applyToOffer(Long offerId, MultipartFile cv, MultipartFile motivation, String studentUsername) throws MessagingException {
+        if (cv == null || cv.isEmpty() || motivation == null || motivation.isEmpty()) {
+            throw new ApiException("CV and motivation letter are required.");
+        }
+
         Offer offer = offerRepository.findById(offerId)
                 .orElseThrow(() -> new ApiException("Offer not found"));
 
         User student = userRepository.findByUsername(studentUsername)
                 .orElseThrow(() -> new ApiException("Student not found"));
 
-        boolean alreadyApplied = applicationRepository.findByStudentAndOffer(student, offer).isPresent();
+        boolean alreadyApplied = applicationRepository.existsByStudent_IdAndOffer_Id(student.getId(), offer.getId());
         if (alreadyApplied) {
             throw new ApiException("You have already applied to this offer.");
         }
 
+        // Save application first; if email fails, transaction rolls back.
         Application application = new Application();
         application.setStudent(student);
         application.setOffer(offer);
@@ -75,9 +83,10 @@ public class StudentApplicationService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
+        // If needed, set an explicit "from": helper.setFrom("jobapphelha@gmail.com");
         helper.setTo(company.getEmail());
         helper.setSubject("New Job Application for: " + offer.getTitle());
-        helper.setText("Dear " + company.getCompanyName() + ",\n\n"
+        helper.setText("Dear " + (company.getCompanyName() != null ? company.getCompanyName() : "Company") + ",\n\n"
                 + "A student has applied to your offer \"" + offer.getTitle() + "\".\n"
                 + "Email: " + student.getEmail() + "\n\n"
                 + "Please find the attached CV and motivation letter.\n\nRegards,\nJobApp");
@@ -96,7 +105,10 @@ public class StudentApplicationService {
      * @throws MessagingException if adding the attachment fails
      */
     private void addAttachment(MimeMessageHelper helper, MultipartFile file) throws MessagingException {
-        String filename = file.getOriginalFilename();
+        if (file == null || file.isEmpty()) return;
+        String filename = (file.getOriginalFilename() != null && !file.getOriginalFilename().isBlank())
+                ? file.getOriginalFilename()
+                : "attachment";
         InputStreamSource source = file::getInputStream;
         helper.addAttachment(filename, source);
     }
