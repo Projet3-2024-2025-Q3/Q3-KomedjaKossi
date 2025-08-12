@@ -2,23 +2,21 @@ package com.example.jobappbackend.controller;
 
 import com.example.jobappbackend.dto.RegisterRequest;
 import com.example.jobappbackend.dto.UserResponse;
-import com.example.jobappbackend.model.User;
 import com.example.jobappbackend.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * Controller that handles user management operations for administrators.
- * Only accessible to users with the role {@code ADMIN}.
+ * Controller handling user management operations for administrators.
+ * Accessible via routes under /admin/users (secured by SecurityConfig).
  */
 @RestController
 @RequestMapping("/admin/users")
 @CrossOrigin(origins = "*")
-@PreAuthorize("hasRole('ADMIN')")
 public class AdminUserController {
 
     @Autowired
@@ -27,7 +25,7 @@ public class AdminUserController {
     /**
      * Retrieves all registered users.
      *
-     * @return a list of all {@link User} entities
+     * @return a list of {@link UserResponse}
      */
     @GetMapping
     public List<UserResponse> getAllUsers() {
@@ -38,10 +36,10 @@ public class AdminUserController {
      * Creates a new user using the provided registration data.
      *
      * @param request the {@link RegisterRequest} containing user information
-     * @return the newly created {@link User}
+     * @return the created {@link UserResponse}
      */
     @PostMapping
-    public UserResponse createUser(@RequestBody RegisterRequest request) {
+    public UserResponse createUser(@Valid @RequestBody RegisterRequest request) {
         return userService.register(request);
     }
 
@@ -50,10 +48,10 @@ public class AdminUserController {
      *
      * @param id      the ID of the user to update
      * @param request the {@link RegisterRequest} with updated user info
-     * @return the updated {@link User}
+     * @return the updated {@link UserResponse}
      */
     @PutMapping("/{id}")
-    public UserResponse updateUser(@PathVariable Long id, @RequestBody RegisterRequest request) {
+    public UserResponse updateUser(@PathVariable Long id, @Valid @RequestBody RegisterRequest request) {
         return userService.updateUser(id, request);
     }
 
