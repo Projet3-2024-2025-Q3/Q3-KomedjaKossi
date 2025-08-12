@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import {
-  FormControl,
-  FormGroup,
-  NonNullableFormBuilder,
-  Validators
+  FormControl, FormGroup, NonNullableFormBuilder, Validators
 } from '@angular/forms';
+import { finalize } from 'rxjs/operators';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -17,24 +17,42 @@ export class Login implements OnInit {
   loading = false;
 
   form!: FormGroup<{
-    email: FormControl<string>;
+    username: FormControl<string>;
     password: FormControl<string>;
   }>;
 
-  constructor(private fb: NonNullableFormBuilder) {}
+  constructor(
+    private fb: NonNullableFormBuilder,
+    private auth: AuthService,
+    private snack: MatSnackBar
+  ) {}
 
   ngOnInit(): void {
     this.form = this.fb.group({
-      email: this.fb.control('', [Validators.required, Validators.email]),
+      username: this.fb.control('', [Validators.required]),
       password: this.fb.control('', [Validators.required])
     });
-
     document.title = 'Helha Job App — Sign in';
   }
 
   onSubmit(): void {
     if (this.form.invalid || this.loading) return;
     this.loading = true;
-    setTimeout(() => (this.loading = false), 1000);
+
+    const { username, password } = this.form.getRawValue();
+
+    this.auth.login({ username, password })
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: (res) => {
+          this.auth.setToken(res.token);
+          this.snack.open('Signed in successfully.', 'Close', { duration: 3000 });
+          // (Navigation vers /dashboard à ajouter quand la page existera)
+        },
+        error: (err) => {
+          const msg = err?.error?.message ?? 'Sign-in failed. Check your credentials.';
+          this.snack.open(msg, 'Close', { duration: 5000 });
+        }
+      });
   }
 }

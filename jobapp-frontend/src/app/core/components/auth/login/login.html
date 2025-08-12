@@ -1,6 +1,6 @@
 <div class="auth-wrap">
   <div class="brand">
-    <mat-icon class="logo">home</mat-icon>
+    <mat-icon class="logo">work</mat-icon>
     <span>Helha Job App</span>
   </div>
 
@@ -10,10 +10,9 @@
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form" novalidate>
       <mat-form-field appearance="outline" class="full">
-        <mat-label>Email address</mat-label>
-        <input matInput type="email" formControlName="email" placeholder="you@example.com" required />
-        <mat-error *ngIf="form.controls.email.hasError('required')">Email is required.</mat-error>
-        <mat-error *ngIf="form.controls.email.hasError('email')">Enter a valid email.</mat-error>
+        <mat-label>Username</mat-label>
+        <input matInput type="text" formControlName="username" placeholder="your.username" required />
+        <mat-error *ngIf="form.controls.username.hasError('required')">Username is required.</mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full">
@@ -42,5 +41,5 @@
     <p class="slogan">Find the right opportunity faster. Grow your career with Helha Job App.</p>
   </mat-card>
 
-  <footer class="footer">© Helha Job App</footer>
+  <footer class="footer">Helha Job App</footer>
 </div>
