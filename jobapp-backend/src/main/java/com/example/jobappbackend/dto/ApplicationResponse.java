@@ -8,7 +8,7 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 /**
- * DTO used to return a student's application in a safe and readable format.
+ * DTO representing a student's job application in a safe, readable format.
  */
 @Getter
 @Setter
@@ -16,10 +16,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ApplicationResponse {
 
+    /** Application identifier. */
     private Long id;
+
+    /** Title of the related offer. */
     private String offerTitle;
+
+    /** Company name of the offer owner. */
     private String companyName;
+
+    /** Submission timestamp. */
     private LocalDateTime appliedAt;
-
-
 }
