@@ -1,152 +1,115 @@
 package com.example.jobappbackend.exception;
 
 import jakarta.mail.MessagingException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
-import org.springframework.security.core.AuthenticationException;
+import java.util.stream.Collectors;
 
 /**
  * Global exception handler for REST controllers.
  * <p>
- * This component converts common exceptions thrown by Spring MVC or the application layer
- * into consistent HTTP responses with a lightweight JSON body ({@link ErrorResponse}).
+ * Converts common exceptions thrown by Spring MVC or the application layer
+ * into consistent HTTP responses with a simple JSON body ({@link ErrorResponse}).
  * <ul>
- *     <li>400 Bad Request for invalid inputs, type mismatches, or missing multipart parts/parameters</li>
- *     <li>500 Internal Server Error for unexpected failures (e.g., email sending errors)</li>
+ *   <li>400 Bad Request: invalid inputs, validation errors, type mismatches, missing parts/params</li>
+ *   <li>401 Unauthorized: authentication errors</li>
+ *   <li>403 Forbidden: access denied</li>
+ *   <li>405 Method Not Allowed: unsupported HTTP methods</li>
+ *   <li>500 Internal Server Error: unexpected failures</li>
  * </ul>
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Handles domain-level API exceptions raised explicitly by the application layer.
-     *
-     * @param ex the {@link ApiException} thrown by application services or validators
-     * @return HTTP 400 (Bad Request) with a readable error message
-     */
+    /** Domain-level API errors → 400. */
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ErrorResponse> handleApiException(final ApiException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage()));
     }
 
-    /**
-     * Handles invalid path/query parameter types (e.g., "/offers/abc" when a {@code Long} is expected).
-     * Triggered by Spring MVC before the controller method is invoked.
-     *
-     * @param ex the {@link MethodArgumentTypeMismatchException} thrown by the parameter binder
-     * @return HTTP 400 (Bad Request) with a short explanatory message
-     */
+    /** Path/query param type errors → 400. */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(final MethodArgumentTypeMismatchException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("Invalid parameter type."));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Invalid parameter type."));
     }
 
-    /**
-     * Handles missing multipart file parts (e.g., missing "cv" or "motivation" in a multipart request).
-     * Spring throws this before reaching the controller if a required {@code @RequestPart} is absent.
-     *
-     * @param ex the {@link MissingServletRequestPartException} describing the missing part
-     * @return HTTP 400 (Bad Request) with the missing part name
-     */
+    /** Missing multipart part (e.g., 'cv') → 400. */
     @ExceptionHandler(MissingServletRequestPartException.class)
     public ResponseEntity<ErrorResponse> handleMissingServletRequestPart(final MissingServletRequestPartException ex) {
         final String partName = ex.getRequestPartName() != null ? ex.getRequestPartName() : "file";
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("Missing file part: " + partName));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Missing file part: " + partName));
     }
 
-    /**
-     * Handles missing standard (non-multipart) request parameters.
-     *
-     * @param ex the {@link MissingServletRequestParameterException} describing the missing parameter
-     * @return HTTP 400 (Bad Request) with the missing parameter name
-     */
+    /** Missing request parameter → 400. */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErrorResponse> handleMissingServletRequestParameter(final MissingServletRequestParameterException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("Missing parameter: " + ex.getParameterName()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("Missing parameter: " + ex.getParameterName()));
     }
 
-    /**
-     * Handles invalid arguments explicitly thrown by the application (e.g., failed validations).
-     * <p>
-     * Note: Use a dedicated exception (e.g., {@code NotFoundException}) mapped to 404 if you need
-     * to distinguish "not found" from generic validation errors.
-     *
-     * @param ex the {@link IllegalArgumentException} thrown by application code
-     * @return HTTP 400 (Bad Request) with the original error message
-     */
+    /** Illegal arguments from application code → 400. */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(final IllegalArgumentException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(ex.getMessage()));
     }
 
-    /**
-     * Handles authentication failures (e.g., bad credentials during login).
-     *
-     * @param ex the {@link AuthenticationException} thrown by Spring Security
-     * @return HTTP 401 (Unauthorized) with a generic error message
-     */
+    /** Bean Validation on @RequestBody (@Valid) → 400 with first/merged field errors. */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValid(final MethodArgumentNotValidException ex) {
+        String msg = ex.getBindingResult().getFieldErrors().stream()
+                .map(fe -> fe.getField() + ": " + fe.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+        if (msg.isBlank()) msg = "Validation failed.";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(msg));
+    }
+
+    /** Constraint violations on params/path variables (@Validated) → 400. */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(final ConstraintViolationException ex) {
+        String msg = ex.getConstraintViolations().stream()
+                .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                .collect(Collectors.joining("; "));
+        if (msg.isBlank()) msg = "Validation failed.";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse(msg));
+    }
+
+    /** Authentication failures → 401. */
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthentication(final AuthenticationException ex) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(new ErrorResponse("Authentication failed: " + ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorResponse("Authentication failed: " + ex.getMessage()));
     }
 
+    /** Access denied (insufficient role) → 403. */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(final AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse("Access denied."));
+    }
 
-    /**
-     * Handles unsupported HTTP methods (e.g., POST used where only PUT is allowed).
-     *
-     * @param ex the {@link HttpRequestMethodNotSupportedException} thrown by Spring MVC
-     * @return HTTP 405 (Method Not Allowed) with a short explanatory message
-     */
+    /** Unsupported HTTP method → 405. */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleMethodNotSupported(final HttpRequestMethodNotSupportedException ex) {
-        return ResponseEntity
-                .status(HttpStatus.METHOD_NOT_ALLOWED)
-                .body(new ErrorResponse("Method not allowed."));
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(new ErrorResponse("Method not allowed."));
     }
 
-    /**
-     * Handles email sending failures coming from the mailing layer.
-     *
-     * @param ex the {@link MessagingException} thrown during SMTP operations
-     * @return HTTP 500 (Internal Server Error) with the original error message
-     */
+    /** Email sending errors → 500. */
     @ExceptionHandler(MessagingException.class)
     public ResponseEntity<ErrorResponse> handleMessagingException(final MessagingException ex) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse(ex.getMessage()));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(ex.getMessage()));
     }
 
-    /**
-     * Catch-all handler for any other unhandled exceptions.
-     * Keeps internal details out of the response body.
-     *
-     * @param ex any unexpected {@link Exception}
-     * @return HTTP 500 (Internal Server Error) with a generic message
-     */
+    /** Catch-all → 500. */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleOtherExceptions(final Exception ex) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("Internal server error."));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Internal server error."));
     }
 }
