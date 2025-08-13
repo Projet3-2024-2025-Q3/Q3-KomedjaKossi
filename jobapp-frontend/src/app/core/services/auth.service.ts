@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/enviromnet';
 
@@ -14,7 +14,7 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  // Now uses username directly
+
   login(payload: { username: string; password: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, payload);
   }
@@ -24,13 +24,26 @@ register(payload: RegisterRequest) {
   return this.http.post<UserResponse>(`${this.baseUrl}/auth/register`, payload);
 }
 
+forgotPassword(email: string): Observable<string> {
+  const params = new HttpParams().set('email', email);
+  return this.http.post<string>(`${this.baseUrl}/auth/forgot-password`, null, {
+    params,
+    responseType: 'text' as 'json' // <-- force "text" tout en gardant le typage TS
+  });
+}
+
+  // (Optionnel) Change password: PUT /auth/change-password
+  changePassword(payload: { username: string; oldPassword: string; newPassword: string }): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/auth/change-password`, payload);
+  }
+
 
   setToken(token: string): void { localStorage.setItem(TOKEN_KEY, token); }
   getToken(): string | null { return localStorage.getItem(TOKEN_KEY); }
   clearToken(): void { localStorage.removeItem(TOKEN_KEY); }
   isAuthenticated(): boolean { return !!this.getToken(); }
 }
-  // ➜ AJOUTE ces interfaces tout en haut (ou exporte-les depuis un fichier models si tu préfères)
+
 export type Role = 'ADMIN' | 'COMPANY' | 'STUDENT';
 
 export interface RegisterRequest {

@@ -14,13 +14,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { ReactiveFormsModule } from '@angular/forms';
+import { ForgotPassword } from './core/components/auth/forgot-password/forgot-password';
 
 
 
 @NgModule({
   declarations: [
     AppComponent, 
-    Login, Register
+    Login, Register, ForgotPassword
   ],
   imports: [
     BrowserModule,     
