@@ -15,13 +15,14 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ForgotPassword } from './core/components/auth/forgot-password/forgot-password';
+import { AdminDashboard } from './core/components/admin/pages/admin-dashboard/admin-dashboard';
 
 
 
 @NgModule({
   declarations: [
     AppComponent, 
-    Login, Register, ForgotPassword
+    Login, Register, ForgotPassword, AdminDashboard
   ],
   imports: [
     BrowserModule,     
