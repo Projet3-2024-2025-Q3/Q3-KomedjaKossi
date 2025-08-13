@@ -1,19 +1,22 @@
 package com.example.jobappbackend.controller;
 
 import com.example.jobappbackend.dto.*;
+import com.example.jobappbackend.model.User;
+import com.example.jobappbackend.repository.UserRepository;
 import com.example.jobappbackend.service.AuthService;
 import com.example.jobappbackend.service.JwtService;
+import com.example.jobappbackend.service.UserService;
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller that handles user authentication and registration.
- * Provides endpoints for login and user creation with JWT token generation.
+ * Provides endpoints for login, registration, password reset, and password change.
  */
 @RestController
 @RequestMapping("/auth")
@@ -27,7 +30,10 @@ public class AuthController {
     public JwtService jwtService;
 
     @Autowired
-    public com.example.jobappbackend.service.UserService userService;
+    public UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private final AuthService authService;
 
@@ -43,12 +49,18 @@ public class AuthController {
      */
     @PostMapping("/login")
     public AuthResponse login(@RequestBody AuthRequest request) {
+        // Authenticate user credentials
         UsernamePasswordAuthenticationToken authInput =
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
         authManager.authenticate(authInput);
 
-        UserDetails userDetails = userService.loadUserByUsername(request.getUsername());
-        String token = jwtService.generateToken(userDetails.getUsername());
+        // Retrieve full user entity from the database
+        User userEntity = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        // Generate JWT containing all user info
+        String token = jwtService.generateToken(userEntity);
+
         return new AuthResponse(token);
     }
 

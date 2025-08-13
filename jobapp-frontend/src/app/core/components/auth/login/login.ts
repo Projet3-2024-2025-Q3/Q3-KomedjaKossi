@@ -5,6 +5,7 @@ import {
 import { finalize } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +25,8 @@ export class Login implements OnInit {
   constructor(
     private fb: NonNullableFormBuilder,
     private auth: AuthService,
-    private snack: MatSnackBar
+    private snack: MatSnackBar,
+     private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -47,7 +49,12 @@ export class Login implements OnInit {
         next: (res) => {
           this.auth.setToken(res.token);
           this.snack.open('Signed in successfully.', 'Close', { duration: 3000 });
-          // (Navigation vers /dashboard à ajouter quand la page existera)
+          const role = this.auth.getRole();
+          if (role === 'ADMIN') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
         },
         error: (err) => {
           const msg = err?.error?.message ?? 'Sign-in failed. Check your credentials.';

@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service responsible for handling user-related operations such as authentication and registration.
@@ -173,5 +174,9 @@ public class UserService implements UserDetailsService {
             throw new ApiException("User not found");
         }
         userRepository.deleteById(id);
+    }
+
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 }

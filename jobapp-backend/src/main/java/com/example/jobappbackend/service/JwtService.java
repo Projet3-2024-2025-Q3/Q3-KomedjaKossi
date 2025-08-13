@@ -1,5 +1,6 @@
 package com.example.jobappbackend.service;
 
+import com.example.jobappbackend.model.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +9,8 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Service for managing JWT (JSON Web Tokens).
@@ -40,17 +43,40 @@ public class JwtService {
     }
 
     /**
-     * Generates a signed JWT for the given username.
+     * Generates a signed JWT for the given {@link User}, embedding all main details.
      *
-     * @param username subject of the token.
-     * @return signed JWT string.
+     * @param user the authenticated user entity.
+     * @return a signed JWT string.
      */
-    public String generateToken(String username) {
+    public String generateToken(User user) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", user.getId());
+        claims.put("username", user.getUsername());
+        claims.put("email", user.getEmail());
+        claims.put("role", user.getRole());
+        claims.put("firstName", user.getFirstName());
+        claims.put("lastName", user.getLastName());
+        claims.put("companyName", user.getCompanyName());
+        claims.put("address", user.getAddress());
+        claims.put("phoneNumber", user.getPhoneNumber());
+
+        return createToken(claims, user.getUsername());
+    }
+
+    /**
+     * Creates a JWT with the given claims and subject.
+     *
+     * @param claims  map of claims to embed in the payload.
+     * @param subject the token subject (usually the username).
+     * @return a signed JWT string.
+     */
+    private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
-                .setSubject(username)
+                .setClaims(claims)
+                .setSubject(subject)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationMs))
-                .signWith(key)
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
