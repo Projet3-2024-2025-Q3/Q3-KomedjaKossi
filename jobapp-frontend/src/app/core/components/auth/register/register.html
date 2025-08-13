@@ -1,0 +1,116 @@
+<div class="auth-wrap">
+  <div class="brand">
+    <mat-icon class="logo">work</mat-icon>
+    <span>Helha Job App</span>
+  </div>
+
+  <mat-card class="card">
+    <h1 class="title">Create your account</h1>
+    <p class="subtitle">Join Helha Job App and find the right opportunity faster.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="grid" novalidate>
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" required />
+        <mat-error *ngIf="form.controls.username.hasError('required')">Username is required.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" required />
+        <mat-error *ngIf="form.controls.email.hasError('required')">Email is required.</mat-error>
+        <mat-error *ngIf="form.controls.email.hasError('email')">Enter a valid email.</mat-error>
+      </mat-form-field>
+
+      <!-- Password + Confirm -->
+      <div class="row">
+        <mat-form-field appearance="outline" class="half">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" formControlName="password" required />
+        <mat-error *ngIf="form.controls.password.hasError('required')">Required.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half">
+        <mat-label>Confirm password</mat-label>
+        <input matInput type="password" formControlName="confirmPassword" required />
+        <mat-error *ngIf="form.controls.confirmPassword.hasError('required')">Required.</mat-error>
+        <mat-error *ngIf="form.controls.confirmPassword.hasError('passwordMismatch')">
+            Passwords do not match.
+        </mat-error>
+        </mat-form-field>
+    </div>
+
+      <!-- Identity -->
+      <div class="row">
+        <mat-form-field appearance="outline" class="half">
+          <mat-label>First name</mat-label>
+          <input matInput formControlName="firstName" required />
+          <mat-error *ngIf="form.controls.firstName.hasError('required')">Required.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half">
+          <mat-label>Last name</mat-label>
+          <input matInput formControlName="lastName" required />
+          <mat-error *ngIf="form.controls.lastName.hasError('required')">Required.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Address segmented -->
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Street</mat-label>
+        <input matInput formControlName="street" required />
+        <mat-error *ngIf="form.controls.street.hasError('required')">Required.</mat-error>
+      </mat-form-field>
+
+      <div class="row">
+        <mat-form-field appearance="outline" class="half">
+          <mat-label>Number</mat-label>
+          <input matInput formControlName="number" required />
+          <mat-error *ngIf="form.controls.number.hasError('required')">Required.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half">
+          <mat-label>Postal code</mat-label>
+          <input matInput formControlName="postalCode" required />
+          <mat-error *ngIf="form.controls.postalCode.hasError('required')">Required.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Phone -->
+      <mat-form-field appearance="outline" class="full">
+        <mat-label>Phone number</mat-label>
+        <input matInput formControlName="phoneNumber" required />
+        <mat-error *ngIf="form.controls.phoneNumber.hasError('required')">Required.</mat-error>
+      </mat-form-field>
+
+      <!-- Role -->
+      <div class="row">
+        <mat-form-field appearance="outline" class="half">
+          <mat-label>Role</mat-label>
+          <mat-select formControlName="role" required>
+            <mat-option *ngFor="let r of roles" [value]="r">{{ r }}</mat-option>
+          </mat-select>
+          <mat-error *ngIf="form.controls.role.hasError('required')">Required.</mat-error>
+        </mat-form-field>
+
+        <mat-form-field *ngIf="form.controls.role.value === 'COMPANY'" appearance="outline" class="half">
+          <mat-label>Company name</mat-label>
+          <input matInput formControlName="companyName" />
+          <mat-error *ngIf="form.controls.companyName.hasError('required')">Required for COMPANY role.</mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Submit -->
+      <button mat-raised-button color="primary" class="full" type="submit" [disabled]="form.invalid || loading">
+        <span *ngIf="!loading">Create account</span>
+        <mat-progress-spinner *ngIf="loading" diameter="20" mode="indeterminate"></mat-progress-spinner>
+      </button>
+    </form>
+
+    <div class="links">
+      <a routerLink="/login">Already have an account? Sign in</a>
+    </div>
+  </mat-card>
+
+  <footer class="footer">© Helha Job App</footer>
+</div>
