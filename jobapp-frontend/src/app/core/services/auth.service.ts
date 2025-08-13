@@ -42,6 +42,26 @@ forgotPassword(email: string): Observable<string> {
   getToken(): string | null { return localStorage.getItem(TOKEN_KEY); }
   clearToken(): void { localStorage.removeItem(TOKEN_KEY); }
   isAuthenticated(): boolean { return !!this.getToken(); }
+
+  getRole(): Role | null {
+  const token = this.getToken();
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    // le backend renvoie normalement authorities: ['ADMIN'] ou role: 'ADMIN'
+    if (Array.isArray(payload.authorities) && payload.authorities.length > 0) {
+      return payload.authorities[0] as Role;
+    }
+    if (payload.role) {
+      return payload.role as Role;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 }
 
 export type Role = 'ADMIN' | 'COMPANY' | 'STUDENT';
