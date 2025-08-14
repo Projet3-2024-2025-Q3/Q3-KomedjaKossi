@@ -34,7 +34,7 @@ export interface RegisterRequest {
 @Injectable({
   providedIn: 'root'
 })
-export class adminUserservice {
+export class adminservice {
   private readonly baseUrl = `${environment.apiBaseUrl}/admin/users`;
 
   constructor(private http: HttpClient) {}
@@ -43,15 +43,12 @@ export class adminUserservice {
     return this.http.get<UserResponse[]>(this.baseUrl);
   }
 
-  create(user: RegisterRequest): Observable<UserResponse> {
-    return this.http.post<UserResponse>(this.baseUrl, user);
-  }
 
-  update(id: number, user: RegisterRequest): Observable<UserResponse> {
+  update(id: Number, user: RegisterRequest): Observable<UserResponse> {
     return this.http.put<UserResponse>(`${this.baseUrl}/${id}`, user);
   }
 
-  delete(id: number): Observable<void> {
+  delete(id: Number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
 }

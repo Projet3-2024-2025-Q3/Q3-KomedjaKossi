@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/enviromnet';
+import { Router } from '@angular/router';
 
 export interface AuthResponse { token: string }
 export interface ErrorResponse { message: string }
@@ -21,7 +22,8 @@ export interface RegisterRequest {
 }
 
 export interface UserResponse {
-  id?: string | number;
+  createdAt: any;
+  id: number;
   username: string;
   email: string;
   role: Role;
@@ -37,8 +39,12 @@ const TOKEN_KEY = 'auth_token';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly baseUrl = environment.apiBaseUrl;
+    private readonly TOKEN_KEY = 'jwt_token';
 
-  constructor(private http: HttpClient) {}
+
+
+  constructor(private http: HttpClient,
+    private router: Router) {}
 
   login(payload: { username: string; password: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, payload);
@@ -55,13 +61,13 @@ export class AuthService {
       responseType: 'text' as 'json'
     });
   }
-
-  changePassword(payload: { username: string; oldPassword: string; newPassword: string }): Observable<void> {
-    return this.http.put<void>(`${this.baseUrl}/auth/change-password`, payload);
-  }
-
   setToken(token: string): void {
     localStorage.setItem(TOKEN_KEY, token);
+  }
+
+   logout(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    this.router.navigate(['/login']);
   }
 
   getToken(): string | null {
@@ -72,7 +78,7 @@ export class AuthService {
     localStorage.removeItem(TOKEN_KEY);
   }
 
-  private decodePayload(): any | null {
+   decodePayload(): any | null {
     const token = this.getToken();
     if (!token) return null;
     const parts = token.split('.');
@@ -118,4 +124,14 @@ export class AuthService {
   hasRole(role: Role): boolean {
     return this.getRole() === role;
   }
+
+  changePassword(oldPassword: string, newPassword: string) {
+  const payload = this.decodePayload();
+  return this.http.put(`${this.baseUrl}/auth/change-password`, {
+    username: payload?.username, 
+    oldPassword,
+    newPassword
+  });
+}
+
 }
