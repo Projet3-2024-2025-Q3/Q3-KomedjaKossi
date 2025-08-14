@@ -6,6 +6,7 @@ import { ForgotPassword } from './core/components/auth/forgot-password/forgot-pa
 import { AuthGuard } from './core/guards/auth-guard';
 import { RoleGuard } from './core/guards/role-guard';
 import { AdminDashboard } from './core/components/admin/pages/admin-dashboard/admin-dashboard';
+import { ChangePasswordCompoment } from './shared/change-password-compoment/change-password-compoment';
 
 const routes: Routes = [
   { path: 'login', component: Login },
@@ -17,6 +18,7 @@ const routes: Routes = [
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['ADMIN'] }
   },
+   { path: 'settings', component: ChangePasswordCompoment },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }
 ];

@@ -34,9 +34,11 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { UserDialog } from './core/components/admin/pages/dialogs/user-dialog/user-dialog';
 import { DeleteConfirmDialog } from './core/components/admin/pages/dialogs/delete-confirm-dialog/delete-confirm-dialog';
 import { AuthInterceptor } from './core/interceptors/interceptor-interceptor';
+import { UserDialog } from './core/components/admin/pages/dialogs/user-dialog/user-dialog';
+import { ChangePasswordCompoment } from './shared/change-password-compoment/change-password-compoment';
+
 
 
 @NgModule({
@@ -46,8 +48,9 @@ import { AuthInterceptor } from './core/interceptors/interceptor-interceptor';
     Register,
     ForgotPassword,
     AdminDashboard,
+    DeleteConfirmDialog,
     UserDialog,
-    DeleteConfirmDialog
+    ChangePasswordCompoment
    
   ],
   imports: [
