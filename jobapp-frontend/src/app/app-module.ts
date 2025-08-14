@@ -58,11 +58,11 @@ import { ChangePasswordCompoment } from './shared/change-password-compoment/chan
     HttpClientModule,
     AppRoutingModule,
 
-    // Forms
+
     FormsModule,
     ReactiveFormsModule,
 
-    // Material (auth + dashboard)
+    
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
@@ -71,7 +71,7 @@ import { ChangePasswordCompoment } from './shared/change-password-compoment/chan
     MatProgressSpinnerModule,
     MatSelectModule,
 
-    // Material (dashboard admin)
+   
     MatSidenavModule,
     MatToolbarModule,
     MatListModule,

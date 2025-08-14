@@ -20,8 +20,6 @@ export class DeleteConfirmDialog {
   constructor(
     public dialogRef: MatDialogRef<DeleteConfirmDialog>,
     @Inject(MAT_DIALOG_DATA) public data: DeleteConfirmDialogData,
-    private adminUserService: adminservice,
-    private snackBar: MatSnackBar
   ) {}
 
   onCancel(): void {
@@ -29,6 +27,6 @@ export class DeleteConfirmDialog {
   }
 
    onConfirm(): void {
-    this.dialogRef.close(true);  // tell parent to proceed
+    this.dialogRef.close(true); 
   }
 }

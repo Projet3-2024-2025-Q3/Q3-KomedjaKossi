@@ -16,7 +16,6 @@ export interface UserResponse {
   address: string;
   phoneNumber: string;
   companyName?: string;
-  createdAt?: string; // date en ISO string
 }
 
 export interface RegisterRequest {
