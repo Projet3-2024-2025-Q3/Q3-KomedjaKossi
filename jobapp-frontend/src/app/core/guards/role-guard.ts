@@ -17,7 +17,7 @@ export class RoleGuard implements CanActivate {
       return this.router.parseUrl('/login');
     }
     if (expectedRoles.length && (!userRole || !expectedRoles.includes(userRole))) {
-      return this.router.parseUrl('/dashboard'); // ou page 403 si tu veux
+      return this.router.parseUrl('/dashboard'); 
     }
     return true;
   }
