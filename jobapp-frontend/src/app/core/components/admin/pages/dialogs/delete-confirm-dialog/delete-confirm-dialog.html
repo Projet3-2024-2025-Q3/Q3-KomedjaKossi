@@ -1,11 +1,11 @@
-<h2 mat-dialog-title>Confirmer la suppression</h2>
+<h2 mat-dialog-title>Confirm Deletion</h2>
 
 <mat-dialog-content>
-  <p>Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{{ data.userName }}</strong> ?</p>
-  <p>Cette action est irréversible.</p>
+  <p>Are you sure you want to delete the user <strong>{{ data.userName }}</strong>?</p>
+  <p>This action cannot be undone.</p>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()">Annuler</button>
-  <button mat-raised-button color="warn" (click)="onConfirm()">Supprimer</button>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="warn" (click)="onConfirm()">Delete</button>
 </mat-dialog-actions>

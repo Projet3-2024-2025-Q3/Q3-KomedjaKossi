@@ -1,7 +1,10 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { adminservice } from '../../../../../services/adminservice';
 
 export interface DeleteConfirmDialogData {
+  userId: number;
   userName: string;
 }
 
@@ -9,19 +12,23 @@ export interface DeleteConfirmDialogData {
   selector: 'app-delete-confirm-dialog',
   standalone: false,
   templateUrl: './delete-confirm-dialog.html',
-  styleUrls: ['./delete-confirm-dialog.scss']
+  styleUrls: ['./delete-confirm-dialog.css']
 })
 export class DeleteConfirmDialog {
-constructor(
+  loading = false;
+
+  constructor(
     public dialogRef: MatDialogRef<DeleteConfirmDialog>,
-    @Inject(MAT_DIALOG_DATA) public data: DeleteConfirmDialogData
+    @Inject(MAT_DIALOG_DATA) public data: DeleteConfirmDialogData,
+    private adminUserService: adminservice,
+    private snackBar: MatSnackBar
   ) {}
 
   onCancel(): void {
     this.dialogRef.close(false);
   }
 
-  onConfirm(): void {
-    this.dialogRef.close(true);
+   onConfirm(): void {
+    this.dialogRef.close(true);  // tell parent to proceed
   }
 }
