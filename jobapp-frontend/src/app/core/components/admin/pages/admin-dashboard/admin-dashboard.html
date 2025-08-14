@@ -1,1 +1,178 @@
-<p>admin-dashboard works!</p>
+<!-- Conteneur principal avec sidenav -->
+<mat-sidenav-container class="dashboard-container">
+  
+  <!-- Sidebar gauche -->
+  <mat-sidenav mode="side" opened class="sidebar">
+    
+    <!-- Carte profil admin -->
+    <div class="profile-card">
+      <div class="avatar">
+        <span>JD</span>
+      </div>
+      <div class="profile-info">
+        <h3 class="profile-name">Jean Dupont</h3>
+        <p class="profile-email">jean.dupont@admin.com</p>
+        <span class="profile-role">Rôle : admin</span>
+      </div>
+      <button mat-stroked-button class="logout-btn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        Déconnexion
+      </button>
+    </div>
+    
+    <!-- Navigation -->
+    <mat-nav-list class="nav-list">
+      <a mat-list-item class="nav-item active" (click)="navigate('management')">
+        <mat-icon matListItemIcon>people</mat-icon>
+        <span matListItemTitle>Management</span>
+      </a>
+      <a mat-list-item class="nav-item" (click)="navigate('settings')">
+        <mat-icon matListItemIcon>settings</mat-icon>
+        <span matListItemTitle>Settings</span>
+      </a>
+    </mat-nav-list>
+    
+  </mat-sidenav>
+  
+  <!-- Contenu principal -->
+  <mat-sidenav-content class="main-content">
+    
+    <!-- En-tête de page -->
+    <div class="page-header">
+      <div class="header-info">
+        <h1 class="page-title">Utilisateurs</h1>
+        <span class="user-count">{{ getTotalUsers() }} au total</span>
+      </div>
+      <button mat-raised-button color="primary" class="create-btn" (click)="openCreateDialog()">
+        <mat-icon>person_add</mat-icon>
+        Créer un utilisateur
+      </button>
+    </div>
+    
+    <!-- Barre de filtres -->
+    <div class="filters-bar">
+      <div class="filters-row">
+        
+        <!-- Recherche -->
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Rechercher par nom ou email</mat-label>
+          <input matInput [(ngModel)]="searchText" (ngModelChange)="applyFilters()">
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+        
+        <!-- Filtre par rôle -->
+        <mat-form-field appearance="outline" class="role-field">
+          <mat-label>Rôle</mat-label>
+          <mat-select [(ngModel)]="selectedRoles" multiple (selectionChange)="applyFilters()">
+            <mat-option value="company">Company</mat-option>
+            <mat-option value="student">Student</mat-option>
+            <mat-option value="admin">Admin</mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <!-- Filtre par date -->
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>Date d'inscription</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate placeholder="du" [(ngModel)]="startDate" (dateChange)="applyFilters()">
+            <input matEndDate placeholder="au" [(ngModel)]="endDate" (dateChange)="applyFilters()">
+          </mat-date-range-input>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+        
+        <!-- Boutons d'action -->
+        <div class="filter-actions">
+          <button mat-raised-button class="apply-btn" (click)="applyFilters()">
+            Appliquer
+          </button>
+          <button mat-stroked-button class="reset-btn" (click)="resetFilters()">
+            Réinitialiser
+          </button>
+        </div>
+      </div>
+      
+      <!-- Feedback de résultats -->
+      <div class="filter-feedback" *ngIf="isFiltered">
+        <span>{{ dataSource.filteredData.length }} résultats</span>
+      </div>
+    </div>
+    
+    <!-- Table des utilisateurs -->
+    <div class="table-container">
+      
+      <!-- État vide -->
+      <div class="empty-state" *ngIf="dataSource.data.length === 0">
+        <mat-icon>people_outline</mat-icon>
+        <p>Aucun utilisateur.</p>
+        <button mat-raised-button color="primary" (click)="openCreateDialog()">
+          <mat-icon>person_add</mat-icon>
+          Créer un utilisateur
+        </button>
+      </div>
+      
+      <!-- Table -->
+      <table mat-table [dataSource]="dataSource" matSort class="users-table" *ngIf="dataSource.data.length > 0">
+        
+        <!-- Colonne Nom complet -->
+        <ng-container matColumnDef="fullName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nom complet</th>
+          <td mat-cell *matCellDef="let user">
+            {{ user.firstName }} {{ user.lastName }}
+          </td>
+        </ng-container>
+        
+        <!-- Colonne Email -->
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Adresse email</th>
+          <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+        </ng-container>
+        
+        <!-- Colonne Date d'inscription -->
+        <ng-container matColumnDef="createdAt">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Date d'inscription</th>
+          <td mat-cell *matCellDef="let user">
+            {{ user.createdAt | date:'dd/MM/yyyy' }}
+          </td>
+        </ng-container>
+        
+        <!-- Colonne Rôle -->
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Rôle</th>
+          <td mat-cell *matCellDef="let user">
+            <span class="role-badge">{{ formatRole(user.role) }}</span>
+          </td>
+        </ng-container>
+        
+        <!-- Colonne Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let user">
+            <button mat-icon-button (click)="openEditDialog(user)" aria-label="Éditer">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="delete-btn" (click)="openDeleteDialog(user)" aria-label="Supprimer">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+        
+        <!-- En-têtes et lignes -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        
+      </table>
+      
+      <!-- Pagination -->
+      <mat-paginator 
+        *ngIf="dataSource.data.length > 0"
+        [pageSizeOptions]="[10, 20, 50]"
+        [pageSize]="20"
+        showFirstLastButtons>
+      </mat-paginator>
+      
+    </div>
+    
+  </mat-sidenav-content>
+  
+</mat-sidenav-container>
