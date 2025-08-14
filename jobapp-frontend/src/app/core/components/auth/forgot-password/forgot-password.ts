@@ -7,7 +7,7 @@ import {
 } from '@angular/forms';
 import { finalize } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { AuthService } from '../../../services/auth.service'; // src/app/core/services/auth.service
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -46,7 +46,7 @@ export class ForgotPassword implements OnInit {
     const { email } = this.form.getRawValue();
 
     this.auth
-      .forgotPassword(email) // POST /auth/forgot-password?email=...
+      .forgotPassword(email) 
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: (msg: string) => {
@@ -55,8 +55,7 @@ export class ForgotPassword implements OnInit {
             'Close',
             { duration: 5000 }
           );
-          // Optionally navigate back to /login here
-          // this.router.navigate(['/login']);
+
         },
         error: (err) => {
           const message =
