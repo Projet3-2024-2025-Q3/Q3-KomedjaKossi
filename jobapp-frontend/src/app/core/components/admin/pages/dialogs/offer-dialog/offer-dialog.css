@@ -1,0 +1,36 @@
+/* offer-dialog.css */
+.form {
+  display: block;
+}
+
+.full {
+  width: 100%;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.flex {
+  width: 100%;
+}
+
+.logo-preview {
+  width: 64px;
+  height: 64px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.logo-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
