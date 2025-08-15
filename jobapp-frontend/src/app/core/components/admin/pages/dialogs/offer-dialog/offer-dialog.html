@@ -1,0 +1,56 @@
+<!-- offer-dialog.html (corrigé) -->
+<h2 mat-dialog-title>{{ titleText }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+    <!-- Title -->
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Title</mat-label>
+      <input matInput formControlName="title" placeholder="e.g. Frontend Developer" />
+      <mat-error *ngIf="f['title']?.hasError('required')">Title is required</mat-error>
+      <mat-error *ngIf="f['title']?.hasError('maxlength')">Max 150 characters</mat-error>
+    </mat-form-field>
+
+    <!-- Description -->
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Description</mat-label>
+      <textarea
+        matInput
+        formControlName="description"
+        rows="6"
+        placeholder="Describe the role, responsibilities, required skills…"
+      ></textarea>
+      <mat-error *ngIf="f['description']?.hasError('required')">Description is required</mat-error>
+      <mat-error *ngIf="f['description']?.hasError('maxlength')">Max 5000 characters</mat-error>
+    </mat-form-field>
+
+    <!-- Logo + preview -->
+    <div class="row">
+      <mat-form-field appearance="outline" class="flex">
+        <mat-label>Logo URL (optional)</mat-label>
+        <input matInput formControlName="logoUrl" (blur)="onLogoBlur()" placeholder="https://..." />
+        <mat-error *ngIf="f['logoUrl']?.hasError('url')">Must be a valid http(s) URL</mat-error>
+        <mat-error *ngIf="f['logoUrl']?.hasError('maxlength')">Too long</mat-error>
+      </mat-form-field>
+
+      <div class="logo-preview" *ngIf="logoPreview">
+        <img [src]="logoPreview" alt="Logo preview" />
+      </div>
+    </div>
+
+    <!-- Website -->
+    <mat-form-field appearance="outline" class="full">
+      <mat-label>Company Website (optional)</mat-label>
+      <input matInput formControlName="websiteUrl" placeholder="https://company.com" />
+      <mat-error *ngIf="f['websiteUrl']?.hasError('url')">Must be a valid http(s) URL</mat-error>
+      <mat-error *ngIf="f['websiteUrl']?.hasError('maxlength')">Too long</mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" [disabled]="form.invalid" (click)="submit()">
+    {{ actionText }}
+  </button>
+</mat-dialog-actions>
