@@ -38,6 +38,8 @@ import { DeleteConfirmDialog } from './core/components/admin/pages/dialogs/delet
 import { AuthInterceptor } from './core/interceptors/interceptor-interceptor';
 import { UserDialog } from './core/components/admin/pages/dialogs/user-dialog/user-dialog';
 import { ChangePasswordCompoment } from './shared/change-password-compoment/change-password-compoment';
+import { CompanyDasboard } from './core/components/admin/pages/company-dasboard/company-dasboard';
+import { OfferDialog } from './core/components/admin/pages/dialogs/offer-dialog/offer-dialog';
 
 
 
@@ -50,7 +52,9 @@ import { ChangePasswordCompoment } from './shared/change-password-compoment/chan
     AdminDashboard,
     DeleteConfirmDialog,
     UserDialog,
-    ChangePasswordCompoment
+    ChangePasswordCompoment,
+    CompanyDasboard,
+    OfferDialog
    
   ],
   imports: [

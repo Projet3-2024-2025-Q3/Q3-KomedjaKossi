@@ -7,21 +7,38 @@ import { AuthGuard } from './core/guards/auth-guard';
 import { RoleGuard } from './core/guards/role-guard';
 import { AdminDashboard } from './core/components/admin/pages/admin-dashboard/admin-dashboard';
 import { ChangePasswordCompoment } from './shared/change-password-compoment/change-password-compoment';
+import { CompanyDasboard } from './core/components/admin/pages/company-dasboard/company-dasboard';
+
 
 const routes: Routes = [
   { path: 'login', component: Login },
-  { path: 'register', component: Register }, 
+  { path: 'register', component: Register },
   { path: 'auth/forgot-password', component: ForgotPassword },
+
   {
     path: 'admin',
     component: AdminDashboard,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['ADMIN'] }
   },
-   { path: 'settings', component: ChangePasswordCompoment },
+
+  {
+    path: 'company',
+    component: CompanyDasboard,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['COMPANY'] } 
+  },
+
+  {
+    path: 'settings',
+    component: ChangePasswordCompoment,
+    canActivate: [AuthGuard] 
+  },
+
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' }
 ];
+
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
