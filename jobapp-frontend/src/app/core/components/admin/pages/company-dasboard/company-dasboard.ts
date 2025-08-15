@@ -92,7 +92,7 @@ export class CompanyDasboard implements OnInit {
     this.applyFilters();
   }
 
-  // ====== Actions ======
+ 
   createOffer(): void {
     const dialogRef = this.dialog.open(OfferDialog, {
       width: '600px',
@@ -104,7 +104,6 @@ export class CompanyDasboard implements OnInit {
 
       this.companyOfferService.createOffer(result).subscribe({
         next: (created) => {
-          // on ajoute en tête de liste
           this.offers = [created, ...this.offers];
           this.applyFilters();
           this.snackBar.open('Offer created', 'Close', { duration: 2500 });
@@ -134,7 +133,6 @@ export class CompanyDasboard implements OnInit {
           if (idx !== -1) {
             const next = [...this.offers];
             next[idx] = updated;
-            // re-trier après mise à jour
             this.offers = next.sort((a, b) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
@@ -152,7 +150,7 @@ export class CompanyDasboard implements OnInit {
   deleteOffer(offer: OfferResponse): void {
     const dialogRef = this.dialog.open(DeleteConfirmDialog, {
       width: '420px',
-      data: { userName: offer.title } // on réutilise la même prop pour afficher le nom
+      data: { userName: offer.title }
     });
 
     dialogRef.afterClosed().subscribe((confirmed?: boolean) => {
@@ -171,7 +169,7 @@ export class CompanyDasboard implements OnInit {
     });
   }
 
-  // ====== Sidebar / nav ======
+
   navigate(route: string): void {
     this.router.navigate([route]);
   }
@@ -189,8 +187,4 @@ export class CompanyDasboard implements OnInit {
     this.dialog.open(ChangePasswordCompoment, { width: '400px' });
   }
 
-  // ====== Utils ======
-  trackByOfferId(_: number, item: OfferResponse) {
-    return item.id;
-  }
 }
