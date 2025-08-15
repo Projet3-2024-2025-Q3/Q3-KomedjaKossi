@@ -29,5 +29,5 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
      * @param userId the ID of the company user.
      * @return a list of matching offers.
      */
-    List<Offer> findByCreatedBy_Id(Long userId);
+    List<Offer> findByCreatedById(Long userId);
 }

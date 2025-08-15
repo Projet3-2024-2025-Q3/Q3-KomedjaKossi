@@ -10,11 +10,17 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.support.WebDataBinderFactory;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
+import org.springframework.web.method.support.ModelAndViewContainer;
 
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -46,25 +52,39 @@ class CompanyOfferControllerTest {
     /** JSON serializer/deserializer for request/response payloads. */
     private ObjectMapper objectMapper;
 
-    /** Simulated authenticated principal representing the company user. */
-    private Principal mockPrincipal;
-
     /** Reusable sample offer returned by the mocked service. */
     private OfferResponse sampleOffer;
+
+    private static final long USER_ID = 101L;
+
+    /**
+     * Custom ArgumentResolver to inject JWT in @AuthenticationPrincipal parameter
+     */
+    private static class JwtArgumentResolver implements HandlerMethodArgumentResolver {
+        private final Jwt jwt;
+
+        public JwtArgumentResolver(Jwt jwt) {
+            this.jwt = jwt;
+        }
+
+        @Override
+        public boolean supportsParameter(MethodParameter parameter) {
+            return parameter.hasParameterAnnotation(AuthenticationPrincipal.class) &&
+                    parameter.getParameterType().equals(Jwt.class);
+        }
+
+        @Override
+        public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                      NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
+            return jwt;
+        }
+    }
 
     /**
      * Initializes {@link MockMvc}, registers the global exception handler, and prepares common fixtures.
      */
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders
-                .standaloneSetup(companyOfferController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
-
-        objectMapper = new ObjectMapper();
-        mockPrincipal = () -> "rh@acme.com";
-
         sampleOffer = new OfferResponse(
                 1L,
                 "Junior Java Developer",
@@ -75,6 +95,32 @@ class CompanyOfferControllerTest {
                 "ACME Corp",
                 false
         );
+
+        objectMapper = new ObjectMapper();
+    }
+
+    /**
+     * Helper method to create MockMvc with a specific JWT
+     */
+    private MockMvc createMockMvcWithJwt(Long userId) {
+        Jwt jwt = mock(Jwt.class);
+        lenient().when(jwt.getClaim("userId")).thenReturn(userId);
+
+        return MockMvcBuilders
+                .standaloneSetup(companyOfferController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .setCustomArgumentResolvers(new JwtArgumentResolver(jwt))
+                .build();
+    }
+
+    /**
+     * Helper method to create MockMvc without JWT setup (for tests that fail before auth)
+     */
+    private MockMvc createMockMvcWithoutAuth() {
+        return MockMvcBuilders
+                .standaloneSetup(companyOfferController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .build();
     }
 
     /**
@@ -84,17 +130,17 @@ class CompanyOfferControllerTest {
      */
     @Test
     void shouldGetCompanyOffers() throws Exception {
-        when(offerService.getOffersByCompany("rh@acme.com")).thenReturn(List.of(sampleOffer));
+        mockMvc = createMockMvcWithJwt(USER_ID);
+        when(offerService.getOffersByCompany(USER_ID)).thenReturn(List.of(sampleOffer));
 
-        MvcResult result = mockMvc.perform(get("/company/offers")
-                        .principal(mockPrincipal))
+        MvcResult result = mockMvc.perform(get("/company/offers"))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String response = result.getResponse().getContentAsString();
         assertTrue(response.contains("Junior Java Developer"));
 
-        verify(offerService).getOffersByCompany("rh@acme.com");
+        verify(offerService).getOffersByCompany(USER_ID);
         verifyNoMoreInteractions(offerService);
     }
 
@@ -105,6 +151,7 @@ class CompanyOfferControllerTest {
      */
     @Test
     void shouldCreateOffer() throws Exception {
+        mockMvc = createMockMvcWithJwt(USER_ID);
         OfferRequest request = new OfferRequest(
                 "Junior Java Developer",
                 "Great opportunity",
@@ -112,10 +159,9 @@ class CompanyOfferControllerTest {
                 "https://company.com"
         );
 
-        when(offerService.createOffer(any(OfferRequest.class), eq("rh@acme.com"))).thenReturn(sampleOffer);
+        when(offerService.createOffer(any(OfferRequest.class), eq(USER_ID))).thenReturn(sampleOffer);
 
         MvcResult result = mockMvc.perform(post("/company/offers")
-                        .principal(mockPrincipal)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
@@ -124,7 +170,7 @@ class CompanyOfferControllerTest {
         String response = result.getResponse().getContentAsString();
         assertTrue(response.contains("Junior Java Developer"));
 
-        verify(offerService).createOffer(any(OfferRequest.class), eq("rh@acme.com"));
+        verify(offerService).createOffer(any(OfferRequest.class), eq(USER_ID));
         verifyNoMoreInteractions(offerService);
     }
 
@@ -136,6 +182,7 @@ class CompanyOfferControllerTest {
      */
     @Test
     void shouldReturnBadRequestWhenCreateValidationFails() throws Exception {
+        mockMvc = createMockMvcWithJwt(USER_ID);
         OfferRequest badRequest = new OfferRequest(
                 "", // invalid title
                 "",
@@ -143,16 +190,15 @@ class CompanyOfferControllerTest {
                 "also-not-a-url"
         );
 
-        when(offerService.createOffer(any(OfferRequest.class), eq("rh@acme.com")))
+        when(offerService.createOffer(any(OfferRequest.class), eq(USER_ID)))
                 .thenThrow(new IllegalArgumentException("Invalid offer data"));
 
         mockMvc.perform(post("/company/offers")
-                        .principal(mockPrincipal)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(badRequest)))
                 .andExpect(status().isBadRequest());
 
-        verify(offerService).createOffer(any(OfferRequest.class), eq("rh@acme.com"));
+        verify(offerService).createOffer(any(OfferRequest.class), eq(USER_ID));
         verifyNoMoreInteractions(offerService);
     }
 
@@ -163,6 +209,7 @@ class CompanyOfferControllerTest {
      */
     @Test
     void shouldUpdateOffer() throws Exception {
+        mockMvc = createMockMvcWithJwt(USER_ID);
         OfferRequest request = new OfferRequest(
                 "Updated Java Developer",
                 "Updated description",
@@ -170,16 +217,15 @@ class CompanyOfferControllerTest {
                 "https://company.com"
         );
 
-        when(offerService.updateOffer(eq(1L), any(OfferRequest.class), eq("rh@acme.com")))
+        when(offerService.updateOffer(eq(1L), any(OfferRequest.class), eq(USER_ID)))
                 .thenReturn(sampleOffer);
 
         mockMvc.perform(put("/company/offers/1")
-                        .principal(mockPrincipal)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
 
-        verify(offerService).updateOffer(eq(1L), any(OfferRequest.class), eq("rh@acme.com"));
+        verify(offerService).updateOffer(eq(1L), any(OfferRequest.class), eq(USER_ID));
         verifyNoMoreInteractions(offerService);
     }
 
@@ -191,6 +237,7 @@ class CompanyOfferControllerTest {
      */
     @Test
     void shouldReturnBadRequestForInvalidIdTypeOnUpdate() throws Exception {
+        mockMvc = createMockMvcWithoutAuth(); // No JWT needed - fails at path variable parsing
         OfferRequest request = new OfferRequest(
                 "Any Title",
                 "Any Description",
@@ -199,7 +246,6 @@ class CompanyOfferControllerTest {
         );
 
         mockMvc.perform(put("/company/offers/abc")
-                        .principal(mockPrincipal)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
@@ -215,20 +261,20 @@ class CompanyOfferControllerTest {
      */
     @Test
     void shouldReturnBadRequestWhenUpdateValidationFails() throws Exception {
+        mockMvc = createMockMvcWithJwt(USER_ID);
         OfferRequest badUpdate = new OfferRequest(
                 "", "", "bad-url", "bad-url"
         );
 
-        when(offerService.updateOffer(eq(1L), any(OfferRequest.class), eq("rh@acme.com")))
+        when(offerService.updateOffer(eq(1L), any(OfferRequest.class), eq(USER_ID)))
                 .thenThrow(new IllegalArgumentException("Invalid offer data"));
 
         mockMvc.perform(put("/company/offers/1")
-                        .principal(mockPrincipal)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(badUpdate)))
                 .andExpect(status().isBadRequest());
 
-        verify(offerService).updateOffer(eq(1L), any(OfferRequest.class), eq("rh@acme.com"));
+        verify(offerService).updateOffer(eq(1L), any(OfferRequest.class), eq(USER_ID));
         verifyNoMoreInteractions(offerService);
     }
 
@@ -239,13 +285,13 @@ class CompanyOfferControllerTest {
      */
     @Test
     void shouldDeleteOffer() throws Exception {
-        doNothing().when(offerService).deleteOffer(1L, "rh@acme.com");
+        mockMvc = createMockMvcWithJwt(USER_ID);
+        doNothing().when(offerService).deleteOffer(1L, USER_ID);
 
-        mockMvc.perform(delete("/company/offers/1")
-                        .principal(mockPrincipal))
+        mockMvc.perform(delete("/company/offers/1"))
                 .andExpect(status().isOk());
 
-        verify(offerService).deleteOffer(1L, "rh@acme.com");
+        verify(offerService).deleteOffer(1L, USER_ID);
         verifyNoMoreInteractions(offerService);
     }
 
@@ -257,8 +303,9 @@ class CompanyOfferControllerTest {
      */
     @Test
     void shouldReturnBadRequestForInvalidIdTypeOnDelete() throws Exception {
-        mockMvc.perform(delete("/company/offers/abc")
-                        .principal(mockPrincipal))
+        mockMvc = createMockMvcWithoutAuth(); // No JWT needed - fails at path variable parsing
+
+        mockMvc.perform(delete("/company/offers/abc"))
                 .andExpect(status().isBadRequest());
 
         verifyNoInteractions(offerService);
@@ -271,16 +318,33 @@ class CompanyOfferControllerTest {
      */
     @Test
     void shouldReturnEmptyListWhenNoOffers() throws Exception {
-        when(offerService.getOffersByCompany("rh@acme.com")).thenReturn(List.of());
+        mockMvc = createMockMvcWithJwt(USER_ID);
+        when(offerService.getOffersByCompany(USER_ID)).thenReturn(List.of());
 
-        MvcResult result = mockMvc.perform(get("/company/offers")
-                        .principal(mockPrincipal))
+        MvcResult result = mockMvc.perform(get("/company/offers"))
                 .andExpect(status().isOk())
                 .andReturn();
 
         assertTrue("[]".equals(result.getResponse().getContentAsString().trim()));
 
-        verify(offerService).getOffersByCompany("rh@acme.com");
+        verify(offerService).getOffersByCompany(USER_ID);
         verifyNoMoreInteractions(offerService);
+    }
+
+    /**
+     * Should throw ApiException when JWT doesn't contain userId claim.
+     * ApiException is mapped to 400 Bad Request in GlobalExceptionHandler.
+     *
+     * @throws Exception if the HTTP call fails
+     */
+    @Test
+    void shouldThrowExceptionWhenUserIdMissing() throws Exception {
+        // Create MockMvc with JWT that has no userId
+        mockMvc = createMockMvcWithJwt(null);
+
+        mockMvc.perform(get("/company/offers"))
+                .andExpect(status().isBadRequest()); // ApiException maps to 400 in GlobalExceptionHandler
+
+        verifyNoInteractions(offerService);
     }
 }

@@ -33,7 +33,7 @@ public class AuthController {
     public UserService userService;
 
     @Autowired
-    private UserRepository userRepository;
+    public UserRepository userRepository;
 
     private final AuthService authService;
 

@@ -3,6 +3,7 @@ package com.example.jobappbackend;
 import com.example.jobappbackend.controller.AuthController;
 import com.example.jobappbackend.dto.*;
 import com.example.jobappbackend.exception.GlobalExceptionHandler;
+import com.example.jobappbackend.model.User;
 import com.example.jobappbackend.service.AuthService;
 import com.example.jobappbackend.service.JwtService;
 import com.example.jobappbackend.service.UserService;
@@ -19,6 +20,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import com.example.jobappbackend.repository.UserRepository;
+import java.util.Optional;
+
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
@@ -54,6 +60,9 @@ class AuthControllerTest {
     @Mock
     private AuthService authService;
 
+    @Mock
+    public UserRepository userRepository;
+
     /** Controller under test. Dependencies are injected manually in {@link #setUp()}. */
     private AuthController authController;
 
@@ -76,6 +85,7 @@ class AuthControllerTest {
         authController.authManager = authManager;
         authController.userService = userService;
         authController.jwtService = jwtService;
+        authController.userRepository = userRepository;
 
         mockMvc = MockMvcBuilders
                 .standaloneSetup(authController)
@@ -132,7 +142,6 @@ class AuthControllerTest {
         verify(userService).register(any(RegisterRequest.class));
         verifyNoMoreInteractions(userService, jwtService, authService, authManager);
     }
-
     /**
      * Should return 200 OK and a JWT token when login succeeds.
      * <p>
@@ -145,16 +154,20 @@ class AuthControllerTest {
     void shouldLoginUserSuccessfully() throws Exception {
         AuthRequest request = new AuthRequest("testuser", "password123");
 
-        UserDetails userDetails = org.springframework.security.core.userdetails.User
-                .withUsername("testuser")
-                .password("encodedPassword")
-                .roles("USER")
-                .build();
+        // Créer un mock User entity pour correspondre à ce que retourne userRepository.findByUsername()
+        User mockUserEntity = new User();
+        mockUserEntity.setUsername("testuser");
+        mockUserEntity.setEmail("test@example.com");
+        // Configurez les autres propriétés si nécessaire
 
         when(authManager.authenticate(any()))
                 .thenReturn(new UsernamePasswordAuthenticationToken("testuser", "password123"));
-        when(userService.loadUserByUsername("testuser")).thenReturn(userDetails);
-        when(jwtService.generateToken("testuser")).thenReturn("fake-jwt-token");
+
+        // Mock du UserRepository pour retourner l'entité User
+        when(userRepository.findByUsername("testuser")).thenReturn(Optional.of(mockUserEntity));
+
+        // Mock du JwtService avec l'objet User complet
+        when(jwtService.generateToken(any(User.class))).thenReturn("fake-jwt-token");
 
         MvcResult result = mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -167,9 +180,9 @@ class AuthControllerTest {
         assertTrue(json.contains("fake-jwt-token"));
 
         verify(authManager).authenticate(any());
-        verify(userService).loadUserByUsername("testuser");
-        verify(jwtService).generateToken("testuser");
-        verifyNoMoreInteractions(authManager, userService, jwtService, authService);
+        verify(userRepository).findByUsername("testuser");
+        verify(jwtService).generateToken(any(User.class));
+        verifyNoMoreInteractions(authManager, userRepository, jwtService, authService);
     }
 
     /**

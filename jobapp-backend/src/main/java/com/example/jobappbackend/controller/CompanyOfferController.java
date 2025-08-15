@@ -6,7 +6,6 @@ import com.example.jobappbackend.service.OfferService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
 /**
@@ -26,49 +25,51 @@ public class CompanyOfferController {
     /**
      * Creates a new job offer for the authenticated company.
      *
-     * @param request   the {@link OfferRequest} payload containing offer details
-     * @param principal the authenticated principal (company account)
+     * @param request the {@link OfferRequest} payload containing offer details
+     * @param userId  the ID of the company creating the offer
      * @return the created {@link OfferResponse}
      */
     @PostMapping
-    public OfferResponse createOffer(@RequestBody final OfferRequest request, final Principal principal) {
-        return offerService.createOffer(request, principal.getName());
+    public OfferResponse createOffer(@RequestBody final OfferRequest request,
+                                     @RequestParam final Long userId) {
+        return offerService.createOffer(request, userId);
     }
 
     /**
      * Retrieves all job offers created by the authenticated company.
      *
-     * @param principal the authenticated principal (company account)
+     * @param userId the ID of the company whose offers to retrieve
      * @return a list of {@link OfferResponse} belonging to the company
      */
     @GetMapping
-    public List<OfferResponse> getCompanyOffers(final Principal principal) {
-        return offerService.getOffersByCompany(principal.getName());
+    public List<OfferResponse> getCompanyOffers(@RequestParam final Long userId) {
+        return offerService.getOffersByCompany(userId);
     }
 
     /**
      * Updates an existing job offer owned by the authenticated company.
      *
-     * @param id        the identifier of the offer to update
-     * @param request   the {@link OfferRequest} payload with updated data
-     * @param principal the authenticated principal (company account)
+     * @param id      the identifier of the offer to update
+     * @param request the {@link OfferRequest} payload with updated data
+     * @param userId  the ID of the company updating the offer
      * @return the updated {@link OfferResponse}
      */
     @PutMapping("/{id}")
     public OfferResponse updateOffer(@PathVariable final Long id,
                                      @RequestBody final OfferRequest request,
-                                     final Principal principal) {
-        return offerService.updateOffer(id, request, principal.getName());
+                                     @RequestParam final Long userId) {
+        return offerService.updateOffer(id, request, userId);
     }
 
     /**
      * Deletes a job offer owned by the authenticated company.
      *
-     * @param id        the identifier of the offer to delete
-     * @param principal the authenticated principal (company account)
+     * @param id     the identifier of the offer to delete
+     * @param userId the ID of the company deleting the offer
      */
     @DeleteMapping("/{id}")
-    public void deleteOffer(@PathVariable final Long id, final Principal principal) {
-        offerService.deleteOffer(id, principal.getName());
+    public void deleteOffer(@PathVariable final Long id,
+                            @RequestParam final Long userId) {
+        offerService.deleteOffer(id, userId);
     }
 }

@@ -38,11 +38,11 @@ public class OfferService {
      * Creates a new job offer for a given company (user).
      *
      * @param request         the offer data
-     * @param companyUsername the username of the company creating the offer
+     *@param companyUserId  the user ID of the company creating the offer
      * @return the created offer as a response DTO
      */
-    public OfferResponse createOffer(OfferRequest request, String companyUsername) {
-        User company = userRepository.findByUsername(companyUsername)
+    public OfferResponse createOffer(OfferRequest request, Long companyUserId) {
+        User company = userRepository.findById(companyUserId)
                 .orElseThrow(() -> new ApiException("Company not found"));
 
         Offer offer = new Offer();
@@ -59,11 +59,11 @@ public class OfferService {
     /**
      * Retrieves all job offers created by a specific company.
      *
-     * @param companyUsername the username of the company
+     * @param companyUserId the user ID of the company
      * @return a list of offers
      */
-    public List<OfferResponse> getOffersByCompany(String companyUsername) {
-        return offerRepository.findByCreatedByUsername(companyUsername).stream()
+    public List<OfferResponse> getOffersByCompany(Long companyUserId) {
+        return offerRepository.findByCreatedById(companyUserId).stream()
                 .map(this::toDto)
                 .collect(Collectors.toList());
     }
@@ -73,14 +73,14 @@ public class OfferService {
      *
      * @param id              the ID of the offer to update
      * @param request         the updated offer data
-     * @param companyUsername the username of the company requesting the update
+     * @param companyUserId  the user ID of the company requesting the update
      * @return the updated offer
      */
-    public OfferResponse updateOffer(Long id, OfferRequest request, String companyUsername) {
+    public OfferResponse updateOffer(Long id, OfferRequest request, Long companyUserId) {
         Offer offer = offerRepository.findById(id)
                 .orElseThrow(() -> new ApiException("Offer not found"));
 
-        if (!offer.getCreatedBy().getUsername().equals(companyUsername)) {
+        if (!offer.getCreatedBy().getId().equals(companyUserId)) {
             throw new ApiException("You are not authorized to update this offer.");
         }
 
@@ -97,13 +97,13 @@ public class OfferService {
      * Deletes an offer by ID if it belongs to the specified company.
      *
      * @param id              the offer ID
-     * @param companyUsername the username of the company performing the deletion
+     * @param companyUserId the username of the company performing the deletion
      */
-    public void deleteOffer(Long id, String companyUsername) {
+    public void deleteOffer(Long id, Long companyUserId) {
         Offer offer = offerRepository.findById(id)
                 .orElseThrow(() -> new ApiException("Offer not found"));
 
-        if (!offer.getCreatedBy().getUsername().equals(companyUsername)) {
+        if (!offer.getCreatedBy().getUsername().equals(companyUserId)) {
             throw new ApiException("You are not authorized to delete this offer.");
         }
 
