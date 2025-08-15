@@ -52,7 +52,9 @@ export class Login implements OnInit {
           const role = this.auth.getRole();
           if (role === 'ADMIN') {
             this.router.navigate(['/admin']);
-          } else {
+          } else if (role === 'COMPANY') {
+            this.router.navigate(['/company']); 
+          }else {
             this.router.navigate(['/dashboard']);
           }
         },
