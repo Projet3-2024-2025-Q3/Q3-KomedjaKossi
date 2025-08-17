@@ -8,6 +8,7 @@ import { RoleGuard } from './core/guards/role-guard';
 import { AdminDashboard } from './core/components/admin/pages/admin-dashboard/admin-dashboard';
 import { ChangePasswordCompoment } from './shared/change-password-compoment/change-password-compoment';
 import { CompanyDasboard } from './core/components/admin/pages/company-dasboard/company-dasboard';
+import { StudentDashboard } from './core/components/admin/pages/student-dashboard/student-dashboard';
 
 
 const routes: Routes = [
@@ -27,6 +28,13 @@ const routes: Routes = [
     component: CompanyDasboard,
     canActivate: [AuthGuard, RoleGuard],
     data: { roles: ['COMPANY'] } 
+  },
+
+    {
+    path: 'student',
+    component: StudentDashboard,
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['STUDENT'] }
   },
 
   {

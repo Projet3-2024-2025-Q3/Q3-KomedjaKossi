@@ -40,6 +40,9 @@ import { UserDialog } from './core/components/admin/pages/dialogs/user-dialog/us
 import { ChangePasswordCompoment } from './shared/change-password-compoment/change-password-compoment';
 import { CompanyDasboard } from './core/components/admin/pages/company-dasboard/company-dasboard';
 import { OfferDialog } from './core/components/admin/pages/dialogs/offer-dialog/offer-dialog';
+import { StudentDashboard } from './core/components/admin/pages/student-dashboard/student-dashboard';
+import { ApplyDialog } from './core/components/admin/pages/dialogs/apply-dialog/apply-dialog';
+
 
 
 
@@ -54,7 +57,9 @@ import { OfferDialog } from './core/components/admin/pages/dialogs/offer-dialog/
     UserDialog,
     ChangePasswordCompoment,
     CompanyDasboard,
-    OfferDialog
+    OfferDialog,
+    StudentDashboard,
+    ApplyDialog
    
   ],
   imports: [
