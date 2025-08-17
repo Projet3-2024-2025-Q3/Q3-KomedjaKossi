@@ -1,18 +1,17 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
-
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-
 import { DeleteConfirmDialog } from '../dialogs/delete-confirm-dialog/delete-confirm-dialog';
 import { UserDialog } from '../dialogs/user-dialog/user-dialog';
-
-import { adminservice, RegisterRequest, UserResponse } from '../../../../services/adminservice';
 import { AuthService } from '../../../../services/auth.service';
 import { ChangePasswordCompoment } from '../../../../../shared/change-password-compoment/change-password-compoment';
+import { RegisterRequest, Role, UserResponse } from '../../../../../models/interfaces';
+import { adminservice } from '../../../../services/adminservice';
 
-type Role = 'COMPANY' | 'STUDENT' | 'ADMIN';
+
+
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -149,11 +148,11 @@ export class AdminDashboard implements OnInit {
  openDeleteDialog(user: UserResponse): void {
   const dialogRef = this.dialog.open(DeleteConfirmDialog, {
     width: '400px',
-    data: { userName: `${user.firstName} ${user.lastName}` } // ⬅ remove userId (not needed)
+    data: { userName: `${user.firstName} ${user.lastName}` }
   });
 
   dialogRef.afterClosed().subscribe(result => {
-    if (!result) return; // only if user confirmed
+    if (!result) return; 
 
     this.adminUserService.delete(user.id).subscribe({
       next: () => {

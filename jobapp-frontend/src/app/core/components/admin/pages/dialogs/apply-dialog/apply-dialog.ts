@@ -1,10 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ApplyDialogPayload } from '../../../../../../models/interfaces';
 
-export interface ApplyDialogPayload {
-  cv: File;
-  motivation: File;
-}
+
 
 @Component({
   selector: 'app-apply-dialog',
@@ -43,11 +41,11 @@ export class ApplyDialog {
       return;
     }
     if (!this.validType(file)) {
-      this.errors[kind] = 'Type de fichier non supporté (PDF/DOC/DOCX)';
+      this.errors[kind] = 'Unsupported file type (PDF/DOC/DOCX)';
       return;
     }
     if (!this.validSize(file)) {
-      this.errors[kind] = 'Fichier trop volumineux (max 5 MB)';
+      this.errors[kind] = 'File too large (max 5 MB)';
       return;
     }
     if (kind === 'cv') { this.cv = file; this.cvName = file.name; }
@@ -58,8 +56,8 @@ export class ApplyDialog {
 
   submit() {
     this.errors = {};
-    if (!this.cv) this.errors.cv = 'CV requis';
-    if (!this.motivation) this.errors.motivation = 'Lettre de motivation requise';
+    if (!this.cv) this.errors.cv = 'CV required';
+    if (!this.motivation) this.errors.motivation = 'Cover letter required';
     if (this.errors.cv || this.errors.motivation) return;
 
     this.ref.close({ cv: this.cv!, motivation: this.motivation! });

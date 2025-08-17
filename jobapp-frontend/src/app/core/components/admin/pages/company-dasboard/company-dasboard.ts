@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from '../../../../services/auth.service';
 import { DeleteConfirmDialog } from '../dialogs/delete-confirm-dialog/delete-confirm-dialog';
-import { OfferResponse, OfferRequest } from '../../../../../models/interfaceCompany';
+import { OfferResponse, OfferRequest } from '../../../../../models/interfaces';
 import { ChangePasswordCompoment } from '../../../../../shared/change-password-compoment/change-password-compoment';
 import { CompanyOfferService } from '../../../../services/company-offer-service';
 import { OfferDialog } from '../dialogs/offer-dialog/offer-dialog';
@@ -51,11 +51,11 @@ export class CompanyDasboard implements OnInit {
     this.loadOffers();
   }
 
-  // ====== Data ======
+
   private loadOffers(): void {
     this.companyOfferService.getMyOffers().subscribe({
       next: (offers) => {
-        // tri du + récent au + ancien
+       
         this.offers = [...offers].sort((a, b) => {
           const da = new Date(a.createdAt).getTime();
           const db = new Date(b.createdAt).getTime();
@@ -64,12 +64,12 @@ export class CompanyDasboard implements OnInit {
         this.applyFilters();
       },
       error: () => {
-        this.snackBar.open('Erreur lors du chargement des offres', 'Fermer', { duration: 3000 });
+        this.snackBar.open('Error loading offers', 'Close', { duration: 3000 });
       }
     });
   }
 
-  // ====== Filtres ======
+
   applyFilters(): void {
     const q = (this.searchText || '').trim().toLowerCase();
 

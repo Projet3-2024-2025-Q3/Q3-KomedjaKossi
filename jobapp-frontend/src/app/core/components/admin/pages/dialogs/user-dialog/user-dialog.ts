@@ -2,21 +2,8 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../../../services/auth.service';
-
-
-export type Role = 'COMPANY' | 'STUDENT' | 'ADMIN';
-
-export interface User {
-  id: number;
-  username: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  role: Role;
-  companyName?: string;
-  address?: string;
-  phoneNumber?: string;
-}
+import { Role } from '../../../../../../models/interfaces';
+import { User } from '../../../../../../models/interfaces';
 
 @Component({
   selector: 'app-user-dialog',

@@ -1,19 +1,14 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { OfferResponse, OfferRequest } from '../../../../../../models/interfaceCompany';
+import { OfferRequest, OfferDialogData } from '../../../../../../models/interfaces';
 
-
-export interface OfferDialogData {
-  isEdit: boolean;
-  offer?: OfferResponse;
-}
 
 @Component({
   selector: 'app-offer-dialog',
   standalone: false,
   templateUrl: './offer-dialog.html',
-  styleUrls: ['./offer-dialog.css'] // <- plural
+  styleUrls: ['./offer-dialog.css'] 
 })
 export class OfferDialog implements OnInit {
   form!: FormGroup;

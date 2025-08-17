@@ -26,7 +26,7 @@ export class AuthInterceptor implements HttpInterceptor {
     if (!this.auth.isAuthenticated()) {
       this.auth.clearToken();
       this.router.navigate(['/login']);
-      return throwError(() => new Error('JWT manquant ou expiré'));
+      return throwError(() => new Error('Missing or expired JWT'));
     }
 
     const token = this.auth.getToken()!;

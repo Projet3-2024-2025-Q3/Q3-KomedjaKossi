@@ -1,14 +1,12 @@
-// student-dashboard.ts
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
-import { OfferResponse } from '../../../../../models/interfaceCompany';
+import { ApplyDialogPayload, OfferResponse } from '../../../../../models/interfaces';
 import { ChangePasswordCompoment } from '../../../../../shared/change-password-compoment/change-password-compoment';
 import { AuthService } from '../../../../services/auth.service';
 import { StudentOfferService } from '../../../../services/studentservice';
-import { ApplyDialog, ApplyDialogPayload } from '../dialogs/apply-dialog/apply-dialog';
+import { ApplyDialog } from '../dialogs/apply-dialog/apply-dialog';
 
 @Component({
   selector: 'app-student-dashboard',
@@ -17,24 +15,20 @@ import { ApplyDialog, ApplyDialogPayload } from '../dialogs/apply-dialog/apply-d
   styleUrls: ['./student-dashboard.css']
 })
 export class StudentDashboard implements OnInit {
-  // Profil (sidebar)
   profileName?: string;
   profileEmail?: string;
   profileRole?: string;
 
   settingsOpen = false;
 
-  // Données
   offers: OfferResponse[] = [];
   filteredOffers: OfferResponse[] = [];
 
-  // Filtres
   searchText = '';
-  companies: string[] = [];             // liste des sociétés disponibles
-  selectedCompanies: string[] = [];     // sélection multi
+  companies: string[] = [];
+  selectedCompanies: string[] = [];
   statusFilter: 'all' | 'applied' | 'not' = 'all';
 
-  // UI
   isFiltered = false;
   loading = false;
 
@@ -58,12 +52,10 @@ export class StudentDashboard implements OnInit {
     this.loadOffers();
   }
 
-  // ====== Data ======
   private loadOffers(): void {
     this.loading = true;
     this.api.getAll().subscribe({
       next: (offers) => {
-        // Tri du + récent au + ancien
         this.offers = [...offers].sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
@@ -78,7 +70,6 @@ export class StudentDashboard implements OnInit {
     });
   }
 
-
   private refreshCompanies(): void {
     const set = new Set<string>();
     for (const o of this.offers) {
@@ -87,22 +78,18 @@ export class StudentDashboard implements OnInit {
     this.companies = Array.from(set).sort((a, b) => a.localeCompare(b));
   }
 
-  // ====== Filtres ======
   applyFilters(): void {
     const q = (this.searchText || '').trim().toLowerCase();
     let list = [...this.offers];
 
-    // statut
     if (this.statusFilter === 'applied')      list = list.filter(o => !!o.applied);
     else if (this.statusFilter === 'not')     list = list.filter(o => !o.applied);
 
-    // sociétés (multi)
     if (this.selectedCompanies.length) {
       const sel = new Set(this.selectedCompanies.map(s => s.toLowerCase()));
       list = list.filter(o => o.companyName && sel.has(o.companyName.toLowerCase()));
     }
 
-    // texte
     if (q) {
       list = list.filter(o =>
         (o.title || '').toLowerCase().includes(q) ||
@@ -121,7 +108,6 @@ export class StudentDashboard implements OnInit {
     this.applyFilters();
   }
 
-  // ====== Postuler ======
   openApplyDialog(offer: OfferResponse): void {
     const ref = this.dialog.open<ApplyDialog, { offerTitle: string }, ApplyDialogPayload | undefined>(
       ApplyDialog,
@@ -133,8 +119,8 @@ export class StudentDashboard implements OnInit {
 
       this.api.apply(offer.id, { cv: payload.cv, motivation: payload.motivation }).subscribe({
         next: () => {
-          offer.applied = true;       // MAJ UI
-          this.applyFilters();        // Respecte filtre actif
+          offer.applied = true;
+          this.applyFilters();
           this.snackBar.open('Application sent 🎉', 'Close', { duration: 2500 });
         },
         error: (e) => {
@@ -144,7 +130,6 @@ export class StudentDashboard implements OnInit {
     });
   }
 
-  // ====== Nav & session ======
   navigate(route: string): void { this.router.navigate([route]); }
   
   logout(): void {

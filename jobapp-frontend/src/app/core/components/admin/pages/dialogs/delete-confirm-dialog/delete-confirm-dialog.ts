@@ -2,11 +2,7 @@ import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { adminservice } from '../../../../../services/adminservice';
-
-export interface DeleteConfirmDialogData {
-  userId: number;
-  userName: string;
-}
+import { DeleteConfirmDialogData } from '../../../../../../models/interfaces';
 
 @Component({
   selector: 'app-delete-confirm-dialog',

@@ -15,12 +15,10 @@ export class Register implements OnInit {
   form!: FormGroup;
   loading = false;
   roles = ['STUDENT', 'COMPANY'];
-
-  // ⬇️ Toggle simple (clic)
   hidePassword = true;
   hideConfirm = true;
 
-  constructor(private fb: FormBuilder, private snackBar: MatSnackBar,private router: Router , private auth: AuthService,) {}
+  constructor(private fb: FormBuilder, private snackBar: MatSnackBar,private router: Router , private auth: AuthService) {}
 
   ngOnInit(): void {
     const NAME_PATTERN = /^[\p{L}\s'’.\-]+$/u;   
@@ -42,24 +40,21 @@ export class Register implements OnInit {
         postalCode: ['', [Validators.required, Validators.pattern(POSTAL_PATTERN), this.postalRangeValidator]],
         phoneNumber: ['', [Validators.required, this.belgianPhoneValidator]],
         role: ['', [Validators.required]],
-        companyName: [''] // requis dynamiquement si role = COMPANY
+        companyName: ['']
       },
       { validators: this.passwordsMatchValidator }
     );
 
-    // username en lowercase en live
     this.f.username.valueChanges.subscribe((v: any) => {
       const lv = (v || '').toString().trim().toLowerCase();
       if (v !== lv) this.f.username.setValue(lv, { emitEvent: false });
     });
 
-    // email en lowercase en live
     this.f.email.valueChanges.subscribe((v: any) => {
       const lv = (v || '').toString().trim().toLowerCase();
       if (v !== lv) this.f.email.setValue(lv, { emitEvent: false });
     });
 
-    // companyName requis si role = COMPANY
     this.f.role.valueChanges.subscribe((role: string) => {
       if (role === 'COMPANY') {
         this.f.companyName.addValidators([Validators.required, Validators.pattern(NAME_PATTERN)]);
@@ -73,7 +68,6 @@ export class Register implements OnInit {
 
   get f() { return this.form.controls as any; }
 
-  // ===== Normalisations UI =====
   normalizeUsername(): void {
     const v = (this.f.username.value || '').toString().trim().toLowerCase();
     this.f.username.setValue(v);
@@ -108,7 +102,6 @@ export class Register implements OnInit {
     this.f.phoneNumber.updateValueAndValidity();
   }
 
-  // ===== Validators =====
   private passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
     const p = group.get('password')?.value;
     const c = group.get('confirmPassword')?.value;
@@ -117,16 +110,11 @@ export class Register implements OnInit {
 
   private postalRangeValidator = (control: AbstractControl): ValidationErrors | null => {
     const v = (control.value || '').toString();
-    if (!/^\d{4}$/.test(v)) return null; // pattern s'en charge
+    if (!/^\d{4}$/.test(v)) return null;
     const n = parseInt(v, 10);
     return n >= 1000 && n <= 9999 ? null : { range: true };
   };
 
-  /** Numéro belge : +32… ou 0…
-   *  après retrait du préfixe :
-   *   - 9 chiffres et commence par 4 => mobile OK
-   *   - 8 chiffres => fixe OK
-   */
   private belgianPhoneValidator = (control: AbstractControl): ValidationErrors | null => {
     let raw = (control.value || '').toString();
     if (!raw) return null;
@@ -139,19 +127,17 @@ export class Register implements OnInit {
     else return { bePhone: true };
 
     if (!/^\d+$/.test(digits)) return { bePhone: true };
-    if (digits.length === 9 && digits.startsWith('4')) return null; // mobile
-    if (digits.length === 8) return null;                            // fixe
+    if (digits.length === 9 && digits.startsWith('4')) return null;
+    if (digits.length === 8) return null;
     return { bePhone: true };
   };
 
-  // ===== Submit =====
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    // normalisation finale
     this.normalizeUsername();
     this.lowercaseControl('email');
     this.stripExtraSpaces('street');
@@ -176,20 +162,19 @@ export class Register implements OnInit {
     };
 
     this.loading = true;
-    this.loading = true;
 
-  this.auth.register(payload)
-    .pipe(finalize(() => this.loading = false))
-    .subscribe({
-      next: () => {
-        this.snackBar.open('Account created', 'Close', { duration: 2500 });
-        this.router.navigate(['/login']);
-      },
-      error: (err) => {
-        const msg = err?.message || 'Registration failed';
-        this.snackBar.open(msg, 'Close', { duration: 3500 });
-      }
-    });
+    this.auth.register(payload)
+      .pipe(finalize(() => this.loading = false))
+      .subscribe({
+        next: () => {
+          this.snackBar.open('Account created', 'Close', { duration: 2500 });
+          this.router.navigate(['/login']);
+        },
+        error: (err) => {
+          const msg = err?.message || 'Registration failed';
+          this.snackBar.open(msg, 'Close', { duration: 3500 });
+        }
+      });
 
   }
 }

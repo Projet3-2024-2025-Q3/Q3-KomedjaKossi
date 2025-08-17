@@ -3,36 +3,9 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/enviromnet';
 import { Router } from '@angular/router';
+import { AuthResponse, RegisterRequest, Role, UserResponse } from '../../models/interfaces';
 
-export interface AuthResponse { token: string }
-export interface ErrorResponse { message: string }
 
-export type Role = 'ADMIN' | 'COMPANY' | 'STUDENT';
-
-export interface RegisterRequest {
-  username: string;
-  email: string;
-  password: string;
-  role: Role;
-  firstName: string;
-  lastName: string;
-  address: string;
-  phoneNumber: string;
-  companyName?: string;
-}
-
-export interface UserResponse {
-  createdAt: any;
-  id: number;
-  username: string;
-  email: string;
-  role: Role;
-  firstName: string;
-  lastName: string;
-  address: string;
-  phoneNumber: string;
-  companyName?: string;
-}
 
 const TOKEN_KEY = 'auth_token';
 
@@ -41,10 +14,10 @@ export class AuthService {
   private readonly baseUrl = environment.apiBaseUrl;
     private readonly TOKEN_KEY = 'auth_token';
 
-
-
-  constructor(private http: HttpClient,
-    private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
   login(payload: { username: string; password: string }): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, payload);
