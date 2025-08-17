@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
   selector: 'app-login',
   standalone: false,
   templateUrl: './login.html',
-  styleUrls: ['./login.scss']
+  styleUrls: ['./login.css']
 })
 export class Login implements OnInit {
   hide = true;
@@ -41,7 +41,9 @@ export class Login implements OnInit {
     if (this.form.invalid || this.loading) return;
     this.loading = true;
 
-    const { username, password } = this.form.getRawValue();
+    const raw = this.form.getRawValue();
+    const username = (raw.username || '').trim().toLowerCase();
+    const password = raw.password;
 
     this.auth.login({ username, password })
       .pipe(finalize(() => (this.loading = false)))
@@ -50,11 +52,13 @@ export class Login implements OnInit {
           this.auth.setToken(res.token);
           this.snack.open('Signed in successfully.', 'Close', { duration: 3000 });
           const role = this.auth.getRole();
-          if (role === 'ADMIN') {
+          if (role == 'ADMIN') {
             this.router.navigate(['/admin']);
-          } else if (role === 'COMPANY') {
+          } else if (role == 'COMPANY') {
             this.router.navigate(['/company']); 
-          }else {
+          } else if (role == 'STUDENT'){
+            this.router.navigate(['/student'])          }
+          else {
             this.router.navigate(['/dashboard']);
           }
         },
