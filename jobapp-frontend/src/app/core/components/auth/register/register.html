@@ -9,78 +9,164 @@
     <p class="subtitle">Join Helha Job App and find the right opportunity faster.</p>
 
     <form [formGroup]="form" (ngSubmit)="submit()" class="grid" novalidate>
+      <!-- Username -->
       <mat-form-field appearance="outline" class="full">
         <mat-label>Username</mat-label>
-        <input matInput formControlName="username" required />
-        <mat-error *ngIf="form.controls.username.hasError('required')">Username is required.</mat-error>
+        <input
+          matInput
+          formControlName="username"
+          required
+          autocomplete="username"
+          autocapitalize="off"
+          spellcheck="false"
+          (blur)="normalizeUsername()"
+        />
+        <mat-error *ngIf="f.username.hasError('required')">Username is required.</mat-error>
+        <mat-error *ngIf="f.username.hasError('pattern')">
+          Lowercase letters, digits, . _ - (min 3)
+        </mat-error>
       </mat-form-field>
 
+      <!-- Email -->
       <mat-form-field appearance="outline" class="full">
         <mat-label>Email</mat-label>
-        <input matInput type="email" formControlName="email" required />
-        <mat-error *ngIf="form.controls.email.hasError('required')">Email is required.</mat-error>
-        <mat-error *ngIf="form.controls.email.hasError('email')">Enter a valid email.</mat-error>
+        <input
+          matInput type="email"
+          formControlName="email"
+          required
+          autocomplete="email"
+          (blur)="lowercaseControl('email')"
+        />
+        <mat-error *ngIf="f.email.hasError('required')">Email is required.</mat-error>
+        <mat-error *ngIf="f.email.hasError('email')">Enter a valid email.</mat-error>
       </mat-form-field>
+<div class="row">
+  <!-- Password -->
+  <mat-form-field appearance="outline" class="half">
+    <mat-label>Password</mat-label>
+    <input
+      matInput
+      [type]="hidePassword ? 'password' : 'text'"
+      formControlName="password"
+      required
+      autocomplete="new-password"
+    />
+    <button
+      mat-icon-button
+      matSuffix
+      type="button"
+      (click)="hidePassword = !hidePassword"
+      [attr.aria-label]="hidePassword ? 'Show password' : 'Hide password'">
+      <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+    </button>
 
-      <!-- Password + Confirm -->
-      <div class="row">
-        <mat-form-field appearance="outline" class="half">
-        <mat-label>Password</mat-label>
-        <input matInput type="password" formControlName="password" required />
-        <mat-error *ngIf="form.controls.password.hasError('required')">Required.</mat-error>
-        </mat-form-field>
+    <!-- erreurs du champ password -->
+    <mat-error *ngIf="form.controls['password']?.hasError('required')">
+      Password is required.
+    </mat-error>
+    <mat-error *ngIf="form.controls['password']?.hasError('minlength')">
+      Must be at least 8 characters.
+    </mat-error>
+  </mat-form-field>
 
-        <mat-form-field appearance="outline" class="half">
-        <mat-label>Confirm password</mat-label>
-        <input matInput type="password" formControlName="confirmPassword" required />
-        <mat-error *ngIf="form.controls.confirmPassword.hasError('required')">Required.</mat-error>
-        <mat-error *ngIf="form.controls.confirmPassword.hasError('passwordMismatch')">
-            Passwords do not match.
-        </mat-error>
-        </mat-form-field>
-    </div>
+  <!-- Confirm password -->
+  <mat-form-field appearance="outline" class="half">
+    <mat-label>Confirm password</mat-label>
+    <input
+      matInput
+      [type]="hideConfirm ? 'password' : 'text'"
+      formControlName="confirmPassword"
+      required
+      autocomplete="new-password"
+    />
+    <button
+      mat-icon-button
+      matSuffix
+      type="button"
+      (click)="hideConfirm = !hideConfirm"
+      [attr.aria-label]="hideConfirm ? 'Show password' : 'Hide password'">
+      <mat-icon>{{ hideConfirm ? 'visibility' : 'visibility_off' }}</mat-icon>
+    </button>
+
+    <!-- erreurs du champ confirmPassword -->
+    <mat-error *ngIf="form.controls['confirmPassword']?.hasError('required')">
+      Confirm password is required.
+    </mat-error>
+    <mat-error *ngIf="form.hasError('passwordMismatch')">
+      Passwords do not match.
+    </mat-error>
+  </mat-form-field>
+</div>
+
 
       <!-- Identity -->
       <div class="row">
         <mat-form-field appearance="outline" class="half">
           <mat-label>First name</mat-label>
-          <input matInput formControlName="firstName" required />
-          <mat-error *ngIf="form.controls.firstName.hasError('required')">Required.</mat-error>
+          <input matInput formControlName="firstName" required (blur)="capFirst('firstName')" />
+          <mat-error *ngIf="f.firstName.hasError('required')">Required.</mat-error>
+          <mat-error *ngIf="f.firstName.hasError('pattern')">Only letters, -, ', space, .</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="half">
           <mat-label>Last name</mat-label>
-          <input matInput formControlName="lastName" required />
-          <mat-error *ngIf="form.controls.lastName.hasError('required')">Required.</mat-error>
+          <input matInput formControlName="lastName" required (blur)="capFirst('lastName')" />
+          <mat-error *ngIf="f.lastName.hasError('required')">Required.</mat-error>
+          <mat-error *ngIf="f.lastName.hasError('pattern')">Only letters, -, ', space, .</mat-error>
         </mat-form-field>
       </div>
 
       <!-- Address segmented -->
       <mat-form-field appearance="outline" class="full">
         <mat-label>Street</mat-label>
-        <input matInput formControlName="street" required />
-        <mat-error *ngIf="form.controls.street.hasError('required')">Required.</mat-error>
+        <input matInput formControlName="street" required (blur)="stripExtraSpaces('street')" />
+        <mat-error *ngIf="f.street.hasError('required')">Required.</mat-error>
+        <mat-error *ngIf="f.street.hasError('pattern')">Only letters, -, ', space, .</mat-error>
       </mat-form-field>
 
       <div class="row">
         <mat-form-field appearance="outline" class="half">
           <mat-label>Number</mat-label>
-          <input matInput formControlName="number" required />
-          <mat-error *ngIf="form.controls.number.hasError('required')">Required.</mat-error>
+          <input
+            matInput
+            formControlName="number"
+            required
+            inputmode="numeric"
+            (input)="digitsOnly('number')"
+          />
+          <mat-error *ngIf="f.number.hasError('required')">Required.</mat-error>
+          <mat-error *ngIf="f.number.hasError('pattern')">Digits only.</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="half">
           <mat-label>Postal code</mat-label>
-          <input matInput formControlName="postalCode" required />
-          <mat-error *ngIf="form.controls.postalCode.hasError('required')">Required.</mat-error>
+          <input
+            matInput
+            formControlName="postalCode"
+            required
+            inputmode="numeric"
+            maxlength="4"
+            (input)="digitsOnly('postalCode')"
+          />
+          <mat-error *ngIf="f.postalCode.hasError('required')">Required.</mat-error>
+          <mat-error *ngIf="f.postalCode.hasError('pattern')">4 digits (1000–9999).</mat-error>
         </mat-form-field>
       </div>
 
       <!-- Phone -->
       <mat-form-field appearance="outline" class="full">
         <mat-label>Phone number</mat-label>
-        <input matInput formControlName="phoneNumber" required />
-        <mat-error *ngIf="form.controls.phoneNumber.hasError('required')">Required.</mat-error>
+        <input
+          matInput
+          formControlName="phoneNumber"
+          required
+          inputmode="tel"
+          (blur)="normalizePhone()"
+        />
+        <mat-error *ngIf="f.phoneNumber.hasError('required')">Required.</mat-error>
+        <mat-error *ngIf="f.phoneNumber.hasError('bePhone')">
+          Belgian number expected EXEMPLE +32 4xx xx xx xx or 0x xxx xx xx .
+        </mat-error>
       </mat-form-field>
 
       <!-- Role -->
@@ -90,13 +176,13 @@
           <mat-select formControlName="role" required>
             <mat-option *ngFor="let r of roles" [value]="r">{{ r }}</mat-option>
           </mat-select>
-          <mat-error *ngIf="form.controls.role.hasError('required')">Required.</mat-error>
+          <mat-error *ngIf="f.role.hasError('required')">Required.</mat-error>
         </mat-form-field>
 
-        <mat-form-field *ngIf="form.controls.role.value === 'COMPANY'" appearance="outline" class="half">
+        <mat-form-field *ngIf="f.role.value === 'COMPANY'" appearance="outline" class="half">
           <mat-label>Company name</mat-label>
-          <input matInput formControlName="companyName" />
-          <mat-error *ngIf="form.controls.companyName.hasError('required')">Required for COMPANY role.</mat-error>
+          <input matInput formControlName="companyName" (blur)="capFirst('companyName')" />
+          <mat-error *ngIf="f.companyName.hasError('required')">Required for COMPANY role.</mat-error>
         </mat-form-field>
       </div>
 

@@ -1,0 +1,139 @@
+/* ===== Layout global ===== */
+.auth-wrap {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(70% 60% at 10% 10%, rgba(37,87,167,0.08), transparent 60%),
+    radial-gradient(70% 60% at 90% 0%, rgba(0,150,136,0.08), transparent 60%),
+    #f6f7f9;
+  position: relative;
+}
+
+/* ===== Brand (haut de page) ===== */
+.brand {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 22px;
+  letter-spacing: .3px;
+  color: #2557a7; /* bleu lisible */
+}
+.brand .logo {
+  font-size: 28px;
+}
+
+/* ===== Carte ===== */
+.card {
+  width: min(680px, 96vw);
+  border-radius: 16px;
+  padding: 24px;
+  background: #ffffff;        /* fond blanc net */
+  color: #0f172a;             /* texte très lisible (slate-900) */
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.08);
+  border: 1px solid #e5e7eb;  /* liseré léger */
+}
+
+/* ===== Titres & textes ===== */
+.title {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;            /* CONTRASTE fort */
+}
+.subtitle {
+  margin: 0 0 18px;
+  color: #475569;            /* slate-600 (contraste sur blanc) */
+}
+
+/* ===== Grids ===== */
+.grid { display: grid; gap: 14px; }
+.row  { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.full { width: 100%; }
+.half { width: 100%; }
+
+/* ===== Liens & footer ===== */
+.links { margin-top: 12px; text-align: center; }
+.links a {
+  color: #2557a7;
+  text-decoration: none;
+  font-weight: 600;
+}
+.links a:hover { text-decoration: underline; }
+
+.footer {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  opacity: .7;
+  color: #334155;   /* slate-700 */
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 720px) {
+  .row { grid-template-columns: 1fr; }
+}
+
+/* ===== Lisibilité Angular Material (inputs) ===== */
+
+/* Texte saisi + curseur */
+.mat-mdc-form-field .mdc-text-field__input,
+.mat-mdc-form-field input,
+.mat-mdc-form-field textarea {
+  color: #111 !important;
+  caret-color: #111;
+  background: #fff; /* évite fonds grisés bizarres */
+}
+
+/* Placeholder */
+.mat-mdc-form-field .mdc-text-field__input::placeholder {
+  color: #6b7280 !important; /* slate-500 */
+  opacity: 1;
+}
+
+/* Label */
+.mat-mdc-form-field .mdc-floating-label { color: #374151 !important; }   /* slate-700 */
+.mat-mdc-form-field.mdc-text-field--focused .mdc-floating-label { color: #2557a7 !important; }
+
+/* Icône suffixe/prefixe (œil) */
+.mat-mdc-form-field-icon-suffix mat-icon,
+.mat-mdc-form-field-icon-prefix mat-icon {
+  color: #6b7280 !important;
+}
+
+/* Bordures outline */
+.mat-mdc-form-field .mdc-notched-outline__leading,
+.mat-mdc-form-field .mdc-notched-outline__notch,
+.mat-mdc-form-field .mdc-notched-outline__trailing {
+  border-color: #e5e7eb !important; /* slate-200 */
+  background: #fff;
+}
+.mat-mdc-form-field.mdc-text-field--focused .mdc-notched-outline__leading,
+.mat-mdc-form-field.mdc-text-field--focused .mdc-notched-outline__notch,
+.mat-mdc-form-field.mdc-text-field--focused .mdc-notched-outline__trailing {
+  border-color: #2557a7 !important;
+}
+
+/* Messages d'erreur */
+.mat-mdc-form-field .mat-mdc-form-field-error {
+  color: #b91c1c !important; /* red-700 */
+}
+
+/* Autofill Chrome */
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #111 !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Assure un rendu clair si thème sombre global */
+:root { color-scheme: light; }
