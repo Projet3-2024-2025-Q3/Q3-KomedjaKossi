@@ -10,9 +10,9 @@ export interface OfferResponse {
   description: string;
   logoUrl: string | null;
   websiteUrl: string | null;
-  createdAt: string;       // ISO date
-  companyName: string;     // exposé par OfferService.toDto(...)
-  applied: boolean;        // calculé pour l’étudiant connecté
+  createdAt: string;       
+  companyName: string;     
+  applied: boolean;        
 }
 export interface Offer {
   id: number;
@@ -20,6 +20,6 @@ export interface Offer {
   description: string;
   logoUrl?: string;
   websiteUrl?: string;
-  createdAt: string; // ISO
-  createdBy?: any;   // si le backend la renvoie; non utilisé en édition
+  createdAt: string; 
+  createdBy?: any;  
 }
