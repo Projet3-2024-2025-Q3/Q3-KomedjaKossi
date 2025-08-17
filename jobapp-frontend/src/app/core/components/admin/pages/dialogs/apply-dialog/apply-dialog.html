@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>Apply — {{ data.offerTitle }}</h2>
+
+<mat-dialog-content>
+  <form class="form" (submit)="$event.preventDefault()">
+    <div class="field">
+      <label class="label">Curriculum Vitae (PDF, DOC, DOCX — max 5 MB)</label>
+      <input type="file" accept=".pdf,.doc,.docx" (change)="pick('cv', $any($event.target).files?.[0] || null)" />
+      <div class="hint" *ngIf="cvName">{{ cvName }}</div>
+      <div class="error" *ngIf="errors.cv">{{ errors.cv }}</div>
+    </div>
+
+    <div class="field">
+      <label class="label">Motivation Letter (PDF, DOC, DOCX — max 5 MB)</label>
+      <input type="file" accept=".pdf,.doc,.docx" (change)="pick('motivation', $any($event.target).files?.[0] || null)" />
+      <div class="hint" *ngIf="motivationName">{{ motivationName }}</div>
+      <div class="error" *ngIf="errors.motivation">{{ errors.motivation }}</div>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" class="apply-btn" (click)="submit()">Send</button>
+</mat-dialog-actions>
