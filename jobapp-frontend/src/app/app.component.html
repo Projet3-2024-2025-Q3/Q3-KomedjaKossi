@@ -1,1 +1,46 @@
-<router-outlet></router-outlet>
+<!-- app.component.html -->
+<div class="app-shell">
+  <!-- Header professionnel avec gradient -->
+  <mat-toolbar class="app-header" role="banner">
+    <div class="header-container">
+      <!-- Logo/Icon optionnel -->
+      <div class="logo-section">
+        <mat-icon class="app-icon">work_outline</mat-icon>
+      </div>
+      
+      <!-- Titre principal centré -->
+      <div class="title-section">
+        <h1 class="app-title">HELHA JOB APP</h1>
+        <span class="app-subtitle">Your Career Journey Starts Here</span>
+      </div>
+      
+      <!-- Section droite pour actions futures -->
+      <div class="actions-section">
+        <!-- Espace pour futurs boutons/menu -->
+      </div>
+    </div>
+  </mat-toolbar>
+
+  <!-- Contenu principal avec wrapper -->
+  <main class="app-main" role="main">
+    <div class="main-container">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+
+  <!-- Footer professionnel sticky -->
+  <footer class="app-footer" role="contentinfo">
+    <div class="footer-container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <span class="footer-title">HELHA JOB APP</span>
+          <span class="footer-divider">|</span>
+          <span class="footer-tagline">Excellence in Recruitment</span>
+        </div>
+        <div class="footer-copyright">
+          © {{ currentYear }} Helha Job App. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>
