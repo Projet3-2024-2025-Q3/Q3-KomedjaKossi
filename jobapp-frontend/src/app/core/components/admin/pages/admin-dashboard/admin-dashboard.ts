@@ -12,7 +12,7 @@ import { adminservice, RegisterRequest, UserResponse } from '../../../../service
 import { AuthService } from '../../../../services/auth.service';
 import { ChangePasswordCompoment } from '../../../../../shared/change-password-compoment/change-password-compoment';
 
-type Role = 'company' | 'student' | 'admin';
+type Role = 'COMPANY' | 'STUDENT' | 'ADMIN';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -110,12 +110,12 @@ export class AdminDashboard implements OnInit {
 
   formatRole(role: string): string {
     const roleMap: Record<string, string> = {
-      company: 'Company',
-      student: 'Student',
-      admin: 'Admin',
-      COMPANY: 'Company',
-      STUDENT: 'Student',
-      ADMIN: 'Admin'
+      company: 'COMPANY',
+      student: 'STUDENT',
+      admin: 'ADMIN',
+      COMPANY: 'COMPANY',
+      STUDENT: 'STUDENT',
+      ADMIN: 'ADMIN'
     };
     return roleMap[role] || role;
   }

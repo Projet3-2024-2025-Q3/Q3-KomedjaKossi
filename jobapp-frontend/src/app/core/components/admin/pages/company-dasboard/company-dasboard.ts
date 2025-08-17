@@ -174,10 +174,11 @@ export class CompanyDasboard implements OnInit {
     this.router.navigate([route]);
   }
 
-  logout(): void {
-    this.authService.logout?.();
+ logout(): void {
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
+
 
   toggleSettings(): void {
     this.settingsOpen = !this.settingsOpen;
