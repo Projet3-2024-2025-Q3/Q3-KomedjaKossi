@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../../../services/auth.service';
 
 
-export type Role = 'company' | 'student' | 'admin';
+export type Role = 'COMPANY' | 'STUDENT' | 'ADMIN';
 
 export interface User {
   id: number;

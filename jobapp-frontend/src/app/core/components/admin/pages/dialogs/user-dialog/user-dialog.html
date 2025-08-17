@@ -40,8 +40,8 @@
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Role</mat-label>
       <mat-select formControlName="role">
-        <mat-option value="company">Company</mat-option>
-        <mat-option value="student">Student</mat-option>
+        <mat-option value="company">COMPANY</mat-option>
+        <mat-option value="student">STUDENT</mat-option>
       </mat-select>
       <mat-error *ngIf="userForm.get('role')?.hasError('required')">
         Role is required
