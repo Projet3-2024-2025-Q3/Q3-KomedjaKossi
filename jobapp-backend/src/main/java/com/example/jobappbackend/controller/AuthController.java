@@ -54,11 +54,9 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword());
         authManager.authenticate(authInput);
 
-        // Retrieve full user entity from the database
         User userEntity = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        // Generate JWT containing all user info
         String token = jwtService.generateToken(userEntity);
 
         return new AuthResponse(token);

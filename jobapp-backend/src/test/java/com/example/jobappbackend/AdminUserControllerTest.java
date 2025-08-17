@@ -221,7 +221,7 @@ class AdminUserControllerTest {
     @Test
     void shouldReturnBadRequestWhenCreateValidationFails() throws Exception {
         RegisterRequest badRequest = new RegisterRequest(
-                "", // invalid username
+                "",
                 "invalid-email",
                 "p",
                 "STUDENT",

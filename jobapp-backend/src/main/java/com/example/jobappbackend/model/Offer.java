@@ -39,7 +39,7 @@ public class Offer {
 
     /** The user (company) who created the offer. */
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id") // FK -> Jobapp_user(id)
+    @JoinColumn(name = "user_id")
     private User createdBy;
 
     /**

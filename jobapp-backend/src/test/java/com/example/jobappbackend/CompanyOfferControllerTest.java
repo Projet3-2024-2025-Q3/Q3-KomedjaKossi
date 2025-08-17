@@ -343,7 +343,7 @@ class CompanyOfferControllerTest {
         mockMvc = createMockMvcWithJwt(null);
 
         mockMvc.perform(get("/company/offers"))
-                .andExpect(status().isBadRequest()); // ApiException maps to 400 in GlobalExceptionHandler
+                .andExpect(status().isBadRequest());
 
         verifyNoInteractions(offerService);
     }

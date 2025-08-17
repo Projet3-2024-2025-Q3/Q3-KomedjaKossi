@@ -60,9 +60,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     var userEntityopt = userEntityOpt.get();
                     var Authorities = List.of(new SimpleGrantedAuthority(userEntityopt.getRole()));
 
-                    // ⬇️ Mettre le USERNAME (String) comme principal, pas l'entité User
+
                     var authToken = new UsernamePasswordAuthenticationToken(
-                            userEntityopt.getUsername(),   // <--- principal = "komedjaStudent"
+                            userEntityopt.getUsername(),
                             null,
                             Authorities
                     );

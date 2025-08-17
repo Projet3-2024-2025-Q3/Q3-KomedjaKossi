@@ -30,6 +30,6 @@ public class ApplicationController {
     public ResponseEntity<List<ApplicationResponse>> getApplicationsByStudent(@PathVariable Long studentId) {
         List<ApplicationResponse> applications = applicationService.getApplicationsByStudent(studentId);
         return ResponseEntity.ok(applications);
-        // Option (plus tard) : récupérer l'ID depuis l'utilisateur connecté (Principal) plutôt qu'en path.
+
     }
 }

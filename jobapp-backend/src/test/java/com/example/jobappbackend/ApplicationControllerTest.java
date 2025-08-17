@@ -83,9 +83,6 @@ class ApplicationControllerTest {
      */
     @Test
     void shouldReturnApplicationsList() throws Exception {
-        // Using a minimal approach to avoid coupling to ApplicationResponse constructors/fields.
-        // If ApplicationResponse has a no-args constructor, you may replace List.of()
-        // with List.of(new ApplicationResponse()) and assert fields with jsonPath.
         when(applicationService.getApplicationsByStudent(7L)).thenReturn(List.of());
 
         mockMvc.perform(get("/applications/student/7")
