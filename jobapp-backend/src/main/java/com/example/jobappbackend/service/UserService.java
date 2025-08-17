@@ -142,7 +142,7 @@ public class UserService implements UserDetailsService {
 
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        user.setRole(request.getRole());
+        user.setRole(request.getRole().toUpperCase());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setAddress(request.getAddress());

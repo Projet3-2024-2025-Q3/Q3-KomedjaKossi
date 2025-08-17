@@ -35,6 +35,7 @@ public class StudentOfferController {
      */
     @GetMapping
     public List<OfferResponse> getAllOffers(Principal principal) {
+        System.out.println("Principal name = " + principal.getName());
         return offerService.getAllOffers(principal.getName());
     }
 

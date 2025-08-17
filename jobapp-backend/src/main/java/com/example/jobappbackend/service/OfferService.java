@@ -103,7 +103,7 @@ public class OfferService {
         Offer offer = offerRepository.findById(id)
                 .orElseThrow(() -> new ApiException("Offer not found"));
 
-        if (!offer.getCreatedBy().getUsername().equals(companyUserId)) {
+        if (!offer.getCreatedBy().getId().equals(companyUserId)) {
             throw new ApiException("You are not authorized to delete this offer.");
         }
 

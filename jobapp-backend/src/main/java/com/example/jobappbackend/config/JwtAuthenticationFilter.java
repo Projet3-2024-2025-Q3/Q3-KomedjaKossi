@@ -1,6 +1,5 @@
 package com.example.jobappbackend.config;
 
-import com.example.jobappbackend.model.User;
 import com.example.jobappbackend.service.JwtService;
 import com.example.jobappbackend.service.UserService;
 import jakarta.servlet.FilterChain;
@@ -57,10 +56,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 var authorities = List.of(new SimpleGrantedAuthority(userEntity.getRole()));
 
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userEntity, null, authorities);
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                if (userEntityOpt.isPresent() && jwtService.isTokenValid(jwt, username)) {
+                    var userEntityopt = userEntityOpt.get();
+                    var Authorities = List.of(new SimpleGrantedAuthority(userEntityopt.getRole()));
+
+                    // ⬇️ Mettre le USERNAME (String) comme principal, pas l'entité User
+                    var authToken = new UsernamePasswordAuthenticationToken(
+                            userEntityopt.getUsername(),   // <--- principal = "komedjaStudent"
+                            null,
+                            Authorities
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
         }
 
