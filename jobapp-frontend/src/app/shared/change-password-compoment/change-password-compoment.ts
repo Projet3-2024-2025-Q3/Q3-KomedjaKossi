@@ -12,6 +12,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 })
 export class ChangePasswordCompoment {
 passwordForm: FormGroup;
+hide = { old: true, new: true, confirm: true };
 
   constructor(
     public dialogRef: MatDialogRef<ChangePasswordCompoment>,
