@@ -1,0 +1,171 @@
+<!-- student-dashboard.html -->
+<mat-sidenav-container class="dashboard-container">
+  <!-- Sidebar -->
+  <mat-sidenav mode="side" opened class="sidebar">
+    <!-- Profile card -->
+    <div class="profile-card">
+      <div class="avatar">
+        <span>{{ profileName ? profileName[0] : '?' }}</span>
+      </div>
+      <div class="profile-info">
+        <h3 class="profile-name">{{ profileName }}</h3>
+        <p class="profile-email">{{ profileEmail }}</p>
+        <span class="profile-role">Role: {{ profileRole || 'STUDENT' }}</span>
+      </div>
+      <button mat-stroked-button class="logout-btn" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        Logout
+      </button>
+    </div>
+
+    <!-- Navigation -->
+    <mat-nav-list class="nav-list">
+      <a mat-list-item class="nav-item active" (click)="navigate('student')">
+        <mat-icon matListItemIcon>work</mat-icon>
+        <span matListItemTitle>Job Offers</span>
+      </a>
+
+      <div>
+        <a mat-list-item class="nav-item" (click)="toggleSettings()">
+          <mat-icon matListItemIcon>settings</mat-icon>
+          <span matListItemTitle>Settings</span>
+          <mat-icon class="arrow-icon">{{ settingsOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </a>
+
+        <div class="sub-menu" *ngIf="settingsOpen">
+          <a mat-list-item class="nav-sub-item" (click)="openChangePasswordDialog()">
+            <mat-icon matListItemIcon>lock</mat-icon>
+            <span matListItemTitle>Change Password</span>
+          </a>
+        </div>
+      </div>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <!-- Main content -->
+  <mat-sidenav-content class="main-content">
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Available Offers</h1>
+        <p class="user-count">
+          {{ (filteredOffers.length ? filteredOffers.length : (offers.length || 0)) }} offer(s)
+        </p>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-bar">
+      <div class="filters-row">
+        <!-- Search -->
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search by title or description</mat-label>
+          <input
+            matInput
+            [(ngModel)]="searchText"
+            (ngModelChange)="applyFilters()"
+            placeholder="e.g. Data Analyst"
+          />
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Company filter (multi) -->
+        <mat-form-field appearance="outline" class="company-field">
+          <mat-label>Company</mat-label>
+          <mat-select [(ngModel)]="selectedCompanies" multiple (selectionChange)="applyFilters()">
+            <mat-option *ngFor="let c of companies" [value]="c">{{ c }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Status filter -->
+        <mat-form-field appearance="outline" class="status-field">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="statusFilter" (selectionChange)="applyFilters()">
+            <mat-option value="all">All </mat-option>
+            <mat-option value="applied">Applied </mat-option>
+            <mat-option value="not">Not applied </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Actions -->
+        <div class="filter-actions">
+          <button mat-raised-button class="apply-btn" (click)="applyFilters()">
+            Apply
+          </button>
+          <button mat-stroked-button class="reset-btn" (click)="resetFilters()">
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- Results count when filtered -->
+      <div class="filter-feedback" *ngIf="isFiltered">
+        <span>{{ filteredOffers.length }} results</span>
+      </div>
+    </div>
+
+    <!-- Offers grid -->
+    <div class="cards-grid">
+      <!-- Loading -->
+      <div class="empty-state" *ngIf="loading">
+        <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+        <p>Loading offers…</p>
+      </div>
+
+      <!-- Empty state -->
+      <div class="empty-state" *ngIf="!loading && (filteredOffers.length ? filteredOffers : offers).length === 0">
+        <mat-icon>work_outline</mat-icon>
+        <p>No offers found.</p>
+      </div>
+
+      <!-- Cards -->
+      <mat-card class="offer-card"
+                *ngFor="let offer of (filteredOffers.length ? filteredOffers : offers)">
+        <div class="offer-card__header">
+          <div class="logo" *ngIf="offer.logoUrl; else logoFallback">
+            <img [src]="offer.logoUrl" [alt]="offer.title + ' — logo'" />
+          </div>
+          <ng-template #logoFallback>
+            <div class="logo-fallback">
+              <span>{{ offer.title?.charAt(0) || 'C' }}</span>
+            </div>
+          </ng-template>
+
+          <div class="offer-card__titles">
+            <mat-card-title>{{ offer.title }}</mat-card-title>
+            <mat-card-subtitle>
+              <ng-container *ngIf="offer.companyName as c">
+                {{ c }} ·
+              </ng-container>
+              {{ offer.createdAt | date:'mediumDate' }}
+            </mat-card-subtitle>
+          </div>
+        </div>
+
+        <mat-card-content class="offer-card__content">
+          <p class="offer-desc">{{ offer.description }}</p>
+
+          <a *ngIf="offer.websiteUrl"
+             [href]="offer.websiteUrl"
+             target="_blank"
+             rel="noopener"
+             mat-button>
+            <mat-icon>public</mat-icon>
+            Website
+          </a>
+        </mat-card-content>
+
+        <mat-card-actions align="end" class="offer-card__actions">
+          <span *ngIf="offer.applied" class="badge-applied">Applied</span>
+
+          <button mat-raised-button class="apply-btn"
+                  (click)="openApplyDialog(offer)"
+                  [disabled]="offer.applied">
+            <mat-icon>send</mat-icon>
+            {{ offer.applied ? 'Already sent' : 'Apply' }}
+          </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
