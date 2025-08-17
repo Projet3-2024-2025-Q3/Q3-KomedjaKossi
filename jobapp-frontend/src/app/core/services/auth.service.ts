@@ -39,7 +39,7 @@ const TOKEN_KEY = 'auth_token';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly baseUrl = environment.apiBaseUrl;
-    private readonly TOKEN_KEY = 'jwt_token';
+    private readonly TOKEN_KEY = 'auth_token';
 
 
 

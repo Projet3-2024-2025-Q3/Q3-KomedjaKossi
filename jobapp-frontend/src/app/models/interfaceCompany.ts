@@ -4,18 +4,16 @@ export interface OfferRequest {
   logoUrl?: string | null;
   websiteUrl?: string | null;
 }
-
-/** Réponse renvoyée par le backend */
 export interface OfferResponse {
   id: number;
   title: string;
   description: string;
-  logoUrl?: string | null;
-  websiteUrl?: string | null;
-  createdAt: string;     // ISO string
-  createdBy?: any;       // éventuellement renvoyé, non requis côté UI
+  logoUrl: string | null;
+  websiteUrl: string | null;
+  createdAt: string;       // ISO date
+  companyName: string;     // exposé par OfferService.toDto(...)
+  applied: boolean;        // calculé pour l’étudiant connecté
 }
-
 export interface Offer {
   id: number;
   title: string;
