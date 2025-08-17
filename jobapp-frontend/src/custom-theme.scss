@@ -1,35 +1,426 @@
+// custom-theme.scss - Thème Angular Material personnalisé pour Helha Job App
 
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
 @use '@angular/material' as mat;
 
-html {
-  @include mat.theme((
-    color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
+// Include the common styles for Angular Material
+@include mat.core();
+
+// Définition de la palette de couleurs personnalisée basée sur le vert émeraude
+$helha-emerald-palette: (
+  50: #ecfdf5,
+  100: #d1fae5,
+  200: #a7f3d0,
+  300: #6ee7b7,
+  400: #34d399,
+  500: #10b981,
+  600: #059669,  // Couleur principale
+  700: #047857,
+  800: #065f46,
+  900: #064e3b,
+  A100: #a7f3d0,
+  A200: #6ee7b7,
+  A400: #34d399,
+  A700: #047857,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: rgba(black, 0.87),
+    A400: rgba(black, 0.87),
+    A700: white,
+  )
+);
+
+// Palette d'accent - Bleu teal complémentaire
+$helha-teal-palette: (
+  50: #f0fdfa,
+  100: #ccfbf1,
+  200: #99f6e4,
+  300: #5eead4,
+  400: #2dd4bf,
+  500: #14b8a6,
+  600: #0d9488,
+  700: #0f766e,
+  800: #115e59,
+  900: #134e4a,
+  A100: #99f6e4,
+  A200: #5eead4,
+  A400: #2dd4bf,
+  A700: #0f766e,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: rgba(black, 0.87),
+    A400: rgba(black, 0.87),
+    A700: white,
+  )
+);
+
+// Palette d'avertissement - Rouge corporate
+$helha-warn-palette: (
+  50: #fef2f2,
+  100: #fee2e2,
+  200: #fecaca,
+  300: #fca5a5,
+  400: #f87171,
+  500: #ef4444,
+  600: #dc2626,
+  700: #b91c1c,
+  800: #991b1b,
+  900: #7f1d1d,
+  A100: #fca5a5,
+  A200: #f87171,
+  A400: #ef4444,
+  A700: #b91c1c,
+  contrast: (
+    50: rgba(black, 0.87),
+    100: rgba(black, 0.87),
+    200: rgba(black, 0.87),
+    300: rgba(black, 0.87),
+    400: rgba(black, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(black, 0.87),
+    A200: rgba(black, 0.87),
+    A400: white,
+    A700: white,
+  )
+);
+
+// Création des palettes Material - SYNTAXE CORRIGÉE POUR v15+
+$helha-primary: mat.m2-define-palette($helha-emerald-palette, 600, 500, 700);
+$helha-accent: mat.m2-define-palette($helha-teal-palette, 600, 500, 700);
+$helha-warn: mat.m2-define-palette($helha-warn-palette, 600);
+
+// Création du thème clair - SYNTAXE CORRIGÉE
+$helha-light-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $helha-primary,
+    accent: $helha-accent,
+    warn: $helha-warn,
+  ),
+  typography: mat.m2-define-typography-config(
+    $font-family: '"Inter", "Roboto", "Helvetica Neue", sans-serif',
+    $headline-1: mat.m2-define-typography-level(96px, 112px, 800),
+    $headline-2: mat.m2-define-typography-level(60px, 72px, 700),
+    $headline-3: mat.m2-define-typography-level(48px, 56px, 700),
+    $headline-4: mat.m2-define-typography-level(34px, 40px, 600),
+    $headline-5: mat.m2-define-typography-level(24px, 32px, 600),
+    $headline-6: mat.m2-define-typography-level(20px, 28px, 600),
+    $subtitle-1: mat.m2-define-typography-level(16px, 24px, 500),
+    $subtitle-2: mat.m2-define-typography-level(14px, 20px, 500),
+    $body-1: mat.m2-define-typography-level(16px, 24px, 400),
+    $body-2: mat.m2-define-typography-level(14px, 20px, 400),
+    $caption: mat.m2-define-typography-level(12px, 16px, 400),
+    $button: mat.m2-define-typography-level(14px, 20px, 600),
+  ),
+  density: 0,
+));
+
+// Application du thème
+@include mat.all-component-themes($helha-light-theme);
+
+// ============================================
+// STYLES PERSONNALISÉS POUR LES COMPOSANTS
+// ============================================
+
+// Boutons Material personnalisés
+.mat-mdc-raised-button,
+.mat-raised-button {
+  border-radius: 8px !important;
+  padding: 8px 24px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  
+  &.mat-primary {
+    background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%) !important;
+    box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3) !important;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(5, 150, 105, 0.4) !important;
+    }
+    
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+  
+  &.mat-accent {
+    background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%) !important;
+    box-shadow: 0 4px 15px rgba(13, 148, 136, 0.3) !important;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4) !important;
+    }
+  }
+  
+  &.mat-warn {
+    background: linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #ef4444 100%) !important;
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3) !important;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4) !important;
+    }
+  }
 }
 
-body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
+// Boutons flat et stroked
+.mat-mdc-flat-button,
+.mat-mdc-stroked-button,
+.mat-flat-button,
+.mat-stroked-button {
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  transition: all 0.3s ease !important;
+}
 
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
+// Cards Material
+.mat-mdc-card,
+.mat-card {
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  }
+}
 
-  // Reset the user agent margin.
-  margin: 0;
+// Form fields - Compatible v15+
+.mat-mdc-form-field,
+.mat-form-field {
+  font-family: 'Inter', sans-serif !important;
+}
+
+// Pour Material v15+
+.mdc-text-field--outlined {
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: #d1d5db !important;
+    transition: border-color 0.3s ease !important;
+  }
+  
+  &:hover .mdc-notched-outline__leading,
+  &:hover .mdc-notched-outline__notch,
+  &:hover .mdc-notched-outline__trailing {
+    border-color: #9ca3af !important;
+  }
+  
+  &.mdc-text-field--focused {
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: #059669 !important;
+      border-width: 2px !important;
+    }
+  }
+}
+
+// Pour les versions antérieures
+.mat-form-field-appearance-outline {
+  .mat-form-field-outline {
+    color: #d1d5db !important;
+  }
+  
+  &.mat-focused .mat-form-field-outline {
+    color: #059669 !important;
+  }
+}
+
+// Tables
+.mat-mdc-table,
+.mat-table {
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+  
+  .mat-mdc-header-row,
+  .mat-header-row {
+    background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
+    
+    .mat-mdc-header-cell,
+    .mat-header-cell {
+      font-weight: 600 !important;
+      font-size: 20px  !important;
+      letter-spacing: 0.5px !important;
+      background-color:#0da173!important;
+    }
+  }
+  
+  .mat-mdc-row,
+  .mat-row {
+    transition: background-color 0.2s ease !important;
+    
+    &:hover {
+      background-color: #f8fafc !important;
+    }
+    
+    &:nth-child(even) {
+      background-color: #f9fafb;
+    }
+  }
+}
+
+// Chips
+.mat-mdc-chip,
+.mat-chip {
+  border-radius: 16px !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  
+  &.mat-mdc-chip-selected,
+  &.mat-chip-selected {
+    background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
+    color: white !important;
+  }
+}
+
+// Progress bars
+.mat-mdc-progress-bar,
+.mat-progress-bar {
+  .mdc-linear-progress__bar-inner,
+  .mat-progress-bar-fill::after {
+    background: linear-gradient(90deg, #047857 0%, #059669 50%, #10b981 100%) !important;
+  }
+}
+
+// Progress spinners
+.mat-mdc-progress-spinner circle,
+.mat-mdc-spinner circle,
+.mat-progress-spinner circle,
+.mat-spinner circle {
+  stroke: #059669 !important;
+}
+
+// Snackbar
+.mat-mdc-snack-bar-container,
+.mat-snack-bar-container {
+  border-radius: 8px !important;
+  
+  &.success-snackbar {
+    background: linear-gradient(135deg, #047857 0%, #059669 100%) !important;
+    color: white !important;
+    
+    .mat-simple-snackbar-action {
+      color: white !important;
+    }
+  }
+  
+  &.error-snackbar {
+    background: linear-gradient(135deg, #b91c1c 0%, #dc2626 100%) !important;
+    color: white !important;
+    
+    .mat-simple-snackbar-action {
+      color: white !important;
+    }
+  }
+  
+  &.info-snackbar {
+    background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%) !important;
+    color: white !important;
+    
+    .mat-simple-snackbar-action {
+      color: white !important;
+    }
+  }
+}
+
+// Dialog
+.mat-mdc-dialog-container,
+.mat-dialog-container {
+  border-radius: 12px !important;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+// Tabs
+.mat-mdc-tab-group,
+.mat-tab-group {
+  .mat-mdc-tab,
+  .mat-tab-label {
+    font-weight: 600 !important;
+    letter-spacing: 0.5px !important;
+    
+    &.mat-mdc-tab-label-active,
+    &.mat-tab-label-active {
+      color: #059669 !important;
+    }
+  }
+  
+  .mat-mdc-tab-header,
+  .mat-tab-header {
+    border-bottom: 2px solid #e5e7eb !important;
+  }
+  
+  .mdc-tab-indicator__content--underline,
+  .mat-ink-bar {
+    background-color: #059669 !important;
+    height: 3px !important;
+  }
+}
+
+// Menu
+.mat-mdc-menu-panel,
+.mat-menu-panel {
+  border-radius: 8px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  
+  .mat-mdc-menu-item,
+  .mat-menu-item {
+    font-family: 'Inter', sans-serif !important;
+    transition: background-color 0.2s ease !important;
+    
+    &:hover {
+      background-color: #ecfdf5 !important;
+    }
+  }
+}
+
+// Toolbar
+.mat-toolbar {
+  &.mat-primary {
+    background: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%) !important;
+  }
+}
+
+// Sidenav
+.mat-drawer {
+  border-right: 1px solid #e5e7eb !important;
+  
+  &.mat-drawer-side {
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05) !important;
+  }
+}
+
+// Badges
+.mat-badge-content {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+  font-weight: 600 !important;
 }
