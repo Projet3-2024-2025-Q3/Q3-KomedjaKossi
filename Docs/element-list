@@ -1,0 +1,8 @@
+com.example.jobappbackend
+com.example.jobappbackend.config
+com.example.jobappbackend.controller
+com.example.jobappbackend.dto
+com.example.jobappbackend.exception
+com.example.jobappbackend.model
+com.example.jobappbackend.repository
+com.example.jobappbackend.service
