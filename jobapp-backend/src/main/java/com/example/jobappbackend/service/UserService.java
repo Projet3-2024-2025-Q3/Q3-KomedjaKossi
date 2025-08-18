@@ -49,7 +49,6 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("The user does not exist"));
 
-        // Use authorities (not roles) to match SecurityConfig.hasAuthority("ADMIN"/"COMPANY"/"STUDENT")
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getUsername())
                 .password(user.getPassword())
@@ -76,7 +75,7 @@ public class UserService implements UserDetailsService {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
+        user.setRole(request.getRole().toUpperCase());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setAddress(request.getAddress());
@@ -84,17 +83,7 @@ public class UserService implements UserDetailsService {
         user.setPhoneNumber(request.getPhoneNumber());
 
         User savedUser = userRepository.save(user);
-        return new UserResponse(
-                savedUser.getId(),
-                savedUser.getUsername(),
-                savedUser.getEmail(),
-                savedUser.getRole(),
-                savedUser.getFirstName(),
-                savedUser.getLastName(),
-                savedUser.getAddress(),
-                savedUser.getCompanyName(),
-                savedUser.getPhoneNumber()
-        );
+        return toResponse(savedUser);
     }
 
     /**
@@ -104,17 +93,7 @@ public class UserService implements UserDetailsService {
      */
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(user -> new UserResponse(
-                        user.getId(),
-                        user.getUsername(),
-                        user.getEmail(),
-                        user.getRole(),
-                        user.getFirstName(),
-                        user.getLastName(),
-                        user.getAddress(),
-                        user.getCompanyName(),
-                        user.getPhoneNumber()
-                ))
+                .map(this::toResponse)
                 .toList();
     }
 
@@ -130,7 +109,6 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ApiException("User not found"));
 
-        // Uniqueness checks only if value changed
         if (!user.getUsername().equals(request.getUsername())
                 && userRepository.existsByUsername(request.getUsername())) {
             throw new ApiException("Username already taken");
@@ -150,17 +128,7 @@ public class UserService implements UserDetailsService {
         user.setPhoneNumber(request.getPhoneNumber());
 
         User savedUser = userRepository.save(user);
-        return new UserResponse(
-                savedUser.getId(),
-                savedUser.getUsername(),
-                savedUser.getEmail(),
-                savedUser.getRole(),
-                savedUser.getFirstName(),
-                savedUser.getLastName(),
-                savedUser.getAddress(),
-                savedUser.getCompanyName(),
-                savedUser.getPhoneNumber()
-        );
+        return toResponse(savedUser);
     }
 
     /**
@@ -178,5 +146,19 @@ public class UserService implements UserDetailsService {
 
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    private UserResponse toResponse(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getAddress(),
+                user.getCompanyName(),
+                user.getPhoneNumber()
+        );
     }
 }

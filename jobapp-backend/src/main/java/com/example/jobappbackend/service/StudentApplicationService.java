@@ -68,7 +68,6 @@ public class StudentApplicationService {
             throw new ApiException("You have already applied to this offer.");
         }
 
-        // Save application first; if email fails, transaction rolls back.
         Application application = new Application();
         application.setStudent(student);
         application.setOffer(offer);
@@ -83,7 +82,6 @@ public class StudentApplicationService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
-        // If needed, set an explicit "from": helper.setFrom("jobapphelha@gmail.com");
         helper.setTo(company.getEmail());
         helper.setSubject("New Job Application for: " + offer.getTitle());
         helper.setText("Dear " + (company.getCompanyName() != null ? company.getCompanyName() : "Company") + ",\n\n"
