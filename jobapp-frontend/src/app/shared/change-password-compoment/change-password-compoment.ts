@@ -36,21 +36,30 @@ hide = { old: true, new: true, confirm: true };
 
   onSubmit() {
     if (this.passwordForm.invalid) return;
-
+    
     const { oldPassword, newPassword } = this.passwordForm.value;
-
+    
     this.authService.changePassword(oldPassword, newPassword).subscribe({
-      next: () => {
-        this.snackBar.open('Password changed successfully', 'Close', { duration: 3000 });
+      next: (response) => {
+        // La réponse est maintenant du texte, pas du JSON
+        console.log('Server response:', response);
         this.passwordForm.reset();
+        this.snackBar.open('Password changed successfully', 'Close', { 
+          duration: 3000 
+        });
+        this.dialogRef.close(true);
       },
-      error: () => {
-        this.snackBar.open('Failed to change password', 'Close', { duration: 3000 });
+      error: (error) => {
+        console.error('Error:', error);
+        // Gérer l'erreur qui peut aussi être du texte
+        const errorMessage = error.error || 'Failed to change password';
+        this.snackBar.open(errorMessage, 'Close', { 
+          duration: 3000 
+        });
       }
     });
   }
-
-    onCancel(): void {
+  onCancel(): void {
     this.dialogRef.close();
   }
 }
