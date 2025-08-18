@@ -13,7 +13,7 @@ import { AuthService } from '../../../services/auth.service';
   selector: 'app-forgot-password',
   standalone: false,
   templateUrl: './forgot-password.html',
-  styleUrls: ['./forgot-password.scss']
+  styleUrls: ['./forgot-password.css']
 })
 export class ForgotPassword implements OnInit {
   loading = false;
@@ -53,7 +53,7 @@ export class ForgotPassword implements OnInit {
           this.snack.open(
             msg || 'A new password has been sent to your email.',
             'Close',
-            { duration: 5000 }
+            { duration: 15000 }
           );
 
         },
@@ -61,7 +61,7 @@ export class ForgotPassword implements OnInit {
           const message =
             err?.error?.message ??
             'Unable to reset password. Please try again.';
-          this.snack.open(message, 'Close', { duration: 5000 });
+          this.snack.open(message, 'Close', { duration: 10000 });
         }
       });
   }
