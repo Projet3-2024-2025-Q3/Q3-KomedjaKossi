@@ -2,7 +2,6 @@ import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../../../../services/auth.service';
-import { Role } from '../../../../../../models/interfaces';
 import { User } from '../../../../../../models/interfaces';
 
 @Component({
