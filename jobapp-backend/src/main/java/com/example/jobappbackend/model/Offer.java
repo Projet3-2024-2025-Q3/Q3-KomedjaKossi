@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Jobapp_offer")
+@Table(name = "jobapp_offer")
 public class Offer {
 
     /** Unique identifier for the offer (primary key). */
@@ -26,6 +26,7 @@ public class Offer {
     private String title;
 
     /** Detailed description of the job offer. */
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     /** URL to the company’s logo image. */
