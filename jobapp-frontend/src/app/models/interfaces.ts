@@ -5,6 +5,7 @@ export interface OfferRequest {
   websiteUrl?: string | null;
 }
 export interface OfferResponse {
+expanded: any;
   id: number;
   title: string;
   description: string;

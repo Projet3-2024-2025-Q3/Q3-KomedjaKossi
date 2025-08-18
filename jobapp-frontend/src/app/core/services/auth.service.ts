@@ -100,11 +100,16 @@ export class AuthService {
 
   changePassword(oldPassword: string, newPassword: string) {
   const payload = this.decodePayload();
-  return this.http.put(`${this.baseUrl}/auth/change-password`, {
-    username: payload?.username, 
-    oldPassword,
-    newPassword
-  });
+  return this.http.put(
+    `${this.baseUrl}/auth/change-password`, 
+    {
+      username: payload?.username,
+      oldPassword,
+      newPassword
+    },
+    { responseType: 'text' }  // ← Ajouter juste cette ligne !
+  );
+}
 }
 
-}
+
